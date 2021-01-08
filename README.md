@@ -12,7 +12,7 @@ Transponderを起動すると上記の画面が表示されます。ATOMが白�
     <a href="https://gyazo.com/3d41f42c274f6635b05672cf70dc0d22"><img src="https://i.gyazo.com/3d41f42c274f6635b05672cf70dc0d22.png" alt="送受信の様子" width="300"/></a>
 </div>
 
-シリアル経由でATOMへデータを送信すると右の丸が緑に，ATOMからデータを受信すると左の丸が赤になります。
+シリアル経由でATOMへデータを送信すると左の丸が緑に，ATOMからデータを受信すると右の丸が赤になります。
 
 ## TODO
 
