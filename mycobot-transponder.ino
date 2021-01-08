@@ -71,10 +71,12 @@ void setLED(const byte r, const byte g, const byte b) {
 }
 
 void setTitle(const char* title) {
-  M5.Lcd.fillRect(TITLE_X_POS, TITLE_Y_POS, TITLE_WIDTH, TITLE_HEIGHT, TITLE_COLOR);
+  M5.Lcd.fillRect(TITLE_X_POS, TITLE_Y_POS, TITLE_WIDTH,
+                  TITLE_HEIGHT, TITLE_COLOR);
   M5.Lcd.setTextColor(TITLE_STR_COLOR);
   M5.Lcd.setTextDatum(TC_DATUM);
-  M5.Lcd.drawString(title, TITLE_STR_X_POS, TITLE_STR_Y_POS, TITLE_STR_FONT_SIZE);
+  M5.Lcd.drawString(title, TITLE_STR_X_POS, TITLE_STR_Y_POS,
+                    TITLE_STR_FONT_SIZE);
 }
 
 void setSend(const bool isOn) {
