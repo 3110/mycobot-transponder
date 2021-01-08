@@ -6,7 +6,7 @@ M5Stack BasicのシリアルからATOMへコマンドを送信し，処理結果
     <a href="https://gyazo.com/b3b63dd836e511b7ff89201de3dd3141"><img src="https://i.gyazo.com/b3b63dd836e511b7ff89201de3dd3141.png" alt="AtOM" width="100"/></a><a href="https://gyazo.com/da2d87b3179030b0e93cc03d73465b50"><img src="https://i.gyazo.com/da2d87b3179030b0e93cc03d73465b50.png" alt="起動画面" width="300"/></a>
 </div>
 
-起動するとATOMが白色に光り，上記の画面が表示されるため，Transponderが起動していることがわかります。
+Transponderを起動すると上記の画面が表示されます。ATOMが白色に光ることで，BasicからATOMにデータの送信ができていることがわかります。
 
 <div align="center">
     <a href="https://gyazo.com/3d41f42c274f6635b05672cf70dc0d22"><img src="https://i.gyazo.com/3d41f42c274f6635b05672cf70dc0d22.png" alt="送受信の様子" width="300"/></a>
