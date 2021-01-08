@@ -1,6 +1,6 @@
 #include <M5Stack.h>
 
-const char* VERSION = "v0.0.1";
+const char *VERSION = "v0.0.1";
 const int VERSION_X_POS = 5;
 const int VERSION_Y_POS = 25;
 const uint8_t VERSION_DATUM = BL_DATUM;
@@ -13,7 +13,7 @@ const int32_t TITLE_BG_WIDTH = 320;
 const int32_t TITLE_BG_HEIGHT = 28;
 const uint32_t TITLE_BG_COLOR = TFT_BLUE;
 
-const char* TITLE = "Transponder";
+const char *TITLE = "Transponder";
 const int TITLE_X_POS = TITLE_BG_WIDTH / 2;
 const int TITLE_Y_POS = TITLE_BG_HEIGHT / 2 + 1;
 const int TITLE_FONT_SIZE = 4;
@@ -45,7 +45,8 @@ const byte CMD_SET_LED_LEN = 5;
 const int SERIAL_BAUD_RATE = 115200;   // PC -> Basic
 const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 
-void setup() {
+void setup()
+{
   M5.begin(true, false, true, false); // LCD, SD, Serial, I2C
   M5.Power.begin();
   dacWrite(25, 0); // disable mic
@@ -58,21 +59,25 @@ void setup() {
   setVersion(VERSION);
 }
 
-void loop() {
+void loop()
+{
   setSend(false);
-  while (Serial.available() > 0) {
+  while (Serial.available() > 0)
+  {
     setSend(true);
     Serial2.write(Serial.read());
   }
 
   setRecv(false);
-  while (Serial2.available() > 0) {
+  while (Serial2.available() > 0)
+  {
     setRecv(true);
     Serial.write(Serial2.read());
   }
 }
 
-void setLED(const byte r, const byte g, const byte b) {
+void setLED(const byte r, const byte g, const byte b)
+{
   Serial2.write(FRAME_HEADER);
   Serial2.write(FRAME_HEADER);
   Serial2.write(CMD_SET_LED_LEN);
@@ -84,32 +89,37 @@ void setLED(const byte r, const byte g, const byte b) {
   Serial2.flush();
 }
 
-void setText(const char* text, const int x, const int y,
+void setText(const char *text, const int x, const int y,
              const int font_size, const uint16_t text_color,
-             const uint8_t text_datum) {
+             const uint8_t text_datum)
+{
   M5.Lcd.setTextColor(text_color);
   M5.Lcd.setTextDatum(text_datum);
   M5.Lcd.drawString(text, x, y, font_size);
 }
 
-void setTitle(const char* title) {
+void setTitle(const char *title)
+{
   M5.Lcd.fillRect(TITLE_BG_X_POS, TITLE_BG_Y_POS, TITLE_BG_WIDTH,
                   TITLE_BG_HEIGHT, TITLE_BG_COLOR);
   setText(title, TITLE_X_POS, TITLE_Y_POS,
           TITLE_FONT_SIZE, TITLE_COLOR, TITLE_DATUM);
 }
 
-void setVersion(const char* version) {
+void setVersion(const char *version)
+{
   setText(version, VERSION_X_POS, VERSION_Y_POS,
           VERSION_FONT_SIZE, VERSION_COLOR, VERSION_DATUM);
 }
 
-void setSend(const bool isOn) {
+void setSend(const bool isOn)
+{
   M5.Lcd.fillCircle(SEND_X_POS, SEND_Y_POS, SEND_RADIUS,
                     isOn ? SEND_ON_COLOR : SEND_OFF_COLOR);
 }
 
-void setRecv(const bool isOn) {
+void setRecv(const bool isOn)
+{
   M5.Lcd.fillCircle(RECV_X_POS, RECV_Y_POS, RECV_RADIUS,
                     isOn ? RECV_ON_COLOR : RECV_OFF_COLOR);
 }
