@@ -1,27 +1,24 @@
 #include <M5Stack.h>
 
 const char* VERSION = "v0.0.1";
-const int32_t VERSION_X_POS = 5;
-const int32_t VERSION_Y_POS = 25;
-const int32_t VERSION_FONT_SIZE = 2;
+const int VERSION_X_POS = 5;
+const int VERSION_Y_POS = 25;
+const uint8_t VERSION_DATUM = BL_DATUM;
+const int VERSION_FONT_SIZE = 2;
 const uint32_t VERSION_COLOR = TFT_WHITE;
 
-const byte FRAME_HEADER = 0xfe;
-const byte FRAME_FOOTER = 0xfa;
-
-const byte CMD_SET_LED = 0x6a;
-const byte CMD_SET_LED_LEN = 5;
+const int32_t TITLE_BG_X_POS = 0;
+const int32_t TITLE_BG_Y_POS = 0;
+const int32_t TITLE_BG_WIDTH = 320;
+const int32_t TITLE_BG_HEIGHT = 28;
+const uint32_t TITLE_BG_COLOR = TFT_BLUE;
 
 const char* TITLE = "Transponder";
-const uint32_t TITLE_COLOR = TFT_BLUE;
-const int32_t TITLE_X_POS = 0;
-const int32_t TITLE_Y_POS = 0;
-const int32_t TITLE_WIDTH = 320;
-const int32_t TITLE_HEIGHT = 28;
-const int8_t TITLE_STR_FONT_SIZE = 4;
-const int32_t TITLE_STR_X_POS = 160;
-const int32_t TITLE_STR_Y_POS = 2;
-const uint32_t TITLE_STR_COLOR = TFT_WHITE;
+const int TITLE_X_POS = TITLE_BG_WIDTH / 2;
+const int TITLE_Y_POS = TITLE_BG_HEIGHT / 2 + 1;
+const int TITLE_FONT_SIZE = 4;
+const uint8_t TITLE_DATUM = MC_DATUM;
+const uint32_t TITLE_COLOR = TFT_WHITE;
 
 const int32_t SEND_X_POS = 280;
 const int32_t SEND_Y_POS = 14;
@@ -38,6 +35,12 @@ const uint32_t RECV_OFF_COLOR = SEND_OFF_COLOR;
 const byte ATOM_LED_R = 0xff;
 const byte ATOM_LED_G = 0xff;
 const byte ATOM_LED_B = 0xff;
+
+const byte FRAME_HEADER = 0xfe;
+const byte FRAME_FOOTER = 0xfa;
+
+const byte CMD_SET_LED = 0x6a;
+const byte CMD_SET_LED_LEN = 5;
 
 const int SERIAL_BAUD_RATE = 115200;   // PC -> Basic
 const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
@@ -81,20 +84,24 @@ void setLED(const byte r, const byte g, const byte b) {
   Serial2.flush();
 }
 
+void setText(const char* text, const int x, const int y,
+             const int font_size, const uint16_t text_color,
+             const uint8_t text_datum) {
+  M5.Lcd.setTextColor(text_color);
+  M5.Lcd.setTextDatum(text_datum);
+  M5.Lcd.drawString(text, x, y, font_size);
+}
+
 void setTitle(const char* title) {
-  M5.Lcd.fillRect(TITLE_X_POS, TITLE_Y_POS, TITLE_WIDTH,
-                  TITLE_HEIGHT, TITLE_COLOR);
-  M5.Lcd.setTextColor(TITLE_STR_COLOR);
-  M5.Lcd.setTextDatum(TC_DATUM);
-  M5.Lcd.drawString(title, TITLE_STR_X_POS, TITLE_STR_Y_POS,
-                    TITLE_STR_FONT_SIZE);
+  M5.Lcd.fillRect(TITLE_BG_X_POS, TITLE_BG_Y_POS, TITLE_BG_WIDTH,
+                  TITLE_BG_HEIGHT, TITLE_BG_COLOR);
+  setText(title, TITLE_X_POS, TITLE_Y_POS,
+          TITLE_FONT_SIZE, TITLE_COLOR, TITLE_DATUM);
 }
 
 void setVersion(const char* version) {
-  M5.Lcd.setTextColor(VERSION_COLOR);
-  M5.Lcd.setTextDatum(BL_DATUM);
-  M5.Lcd.drawString(version, VERSION_X_POS, VERSION_Y_POS,
-                    VERSION_FONT_SIZE);
+  setText(version, VERSION_X_POS, VERSION_Y_POS,
+          VERSION_FONT_SIZE, VERSION_COLOR, VERSION_DATUM);
 }
 
 void setSend(const bool isOn) {
