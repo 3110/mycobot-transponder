@@ -1,5 +1,11 @@
 #include <M5Stack.h>
 
+const char* VERSION = "v0.0.1";
+const int32_t VERSION_X_POS = 5;
+const int32_t VERSION_Y_POS = 25;
+const int32_t VERSION_FONT_SIZE = 2;
+const uint32_t VERSION_COLOR = TFT_WHITE;
+
 const byte FRAME_HEADER = 0xfe;
 const byte FRAME_FOOTER = 0xfa;
 
@@ -46,6 +52,7 @@ void setup() {
 
   setLED(ATOM_LED_R, ATOM_LED_G, ATOM_LED_B);
   setTitle(TITLE);
+  setVersion(VERSION);
 }
 
 void loop() {
@@ -81,6 +88,13 @@ void setTitle(const char* title) {
   M5.Lcd.setTextDatum(TC_DATUM);
   M5.Lcd.drawString(title, TITLE_STR_X_POS, TITLE_STR_Y_POS,
                     TITLE_STR_FONT_SIZE);
+}
+
+void setVersion(const char* version) {
+  M5.Lcd.setTextColor(VERSION_COLOR);
+  M5.Lcd.setTextDatum(BL_DATUM);
+  M5.Lcd.drawString(version, VERSION_X_POS, VERSION_Y_POS,
+                    VERSION_FONT_SIZE);
 }
 
 void setSend(const bool isOn) {
