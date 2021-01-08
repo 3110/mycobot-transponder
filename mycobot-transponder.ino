@@ -29,6 +29,10 @@ const int32_t RECV_RADIUS = SEND_RADIUS;
 const uint32_t RECV_ON_COLOR = TFT_RED;
 const uint32_t RECV_OFF_COLOR = SEND_OFF_COLOR;
 
+const byte ATOM_LED_R = 0xff;
+const byte ATOM_LED_G = 0xff;
+const byte ATOM_LED_B = 0xff;
+
 const int SERIAL_BAUD_RATE = 115200;   // PC -> Basic
 const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 
@@ -40,7 +44,7 @@ void setup() {
   Serial.begin(SERIAL_BAUD_RATE);
   Serial2.begin(SERIAL2_BAUD_RATE);
 
-  setLED(255, 255, 255);
+  setLED(ATOM_LED_R, ATOM_LED_G, ATOM_LED_B);
   setTitle(TITLE);
 }
 
