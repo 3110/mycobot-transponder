@@ -1,19 +1,21 @@
-# MyCobot用Transponder
+# MyCobot 用 Transponder
 
-M5Stack BasicのシリアルからATOMへコマンドを送信し，処理結果をATOMから受信する[オリジナルのTransponder](https://github.com/elephantrobotics/myCobot/tree/main/Arduino/MycobotBasic/examples/Transponder)に起動画面とデータ送受信の様子を表示する機能を付けました。
-
-<div align="center">
-    <a href="https://gyazo.com/b3b63dd836e511b7ff89201de3dd3141"><img src="https://i.gyazo.com/b3b63dd836e511b7ff89201de3dd3141.png" alt="AtOM" width="100"/></a><a href="https://gyazo.com/49414edc56b8c616abb08437db533ddb"><img src="https://i.gyazo.com/49414edc56b8c616abb08437db533ddb.png" alt="起動画面" width="300"/></a>
-</div>
-
-Transponderを起動すると上記の画面が表示されます。ATOMが白色に光ることで，BasicからATOMにデータの送信ができていることがわかります。
+M5Stack Basic のシリアルから ATOM へコマンドを送信し，処理結果を ATOM から受信する[オリジナルの Transponder](https://github.com/elephantrobotics/myCobot/tree/main/Arduino/MycobotBasic/examples/Transponder)に起動画面とデータ送受信の様子を表示する機能を付けました。
 
 <div align="center">
-    <a href="https://gyazo.com/a5bf381f60a159fb0fd05c45d7828e53"><img src="https://i.gyazo.com/a5bf381f60a159fb0fd05c45d7828e53.png" alt="送受信の様子" width="300"/></a>
+    <a href="https://gyazo.com/b3b63dd836e511b7ff89201de3dd3141"><img src="https://i.gyazo.com/b3b63dd836e511b7ff89201de3dd3141.png" alt="AtOM" width="100"/></a><a href="https://gyazo.com/1efae34d2c922ad8e92b43453d971049"><img src="https://i.gyazo.com/1efae34d2c922ad8e92b43453d971049.png" alt="起動画面" width="300"/></a>
 </div>
 
-シリアル経由でATOMへデータを送信すると左の丸が緑に，ATOMからデータを受信すると右の丸が赤になります。
+Transponder を起動すると上記の画面が表示されます。ATOM が白色に光ることで，Basic から ATOM にデータの送信ができていることがわかります。
 
-## TODO
+<div align="center">
+    <a href="https://gyazo.com/7058c5abed3b6e779e8e7ba966516c70"><img src="https://i.gyazo.com/7058c5abed3b6e779e8e7ba966516c70.png" alt="送受信の表示" width="300"/></a>
+</div>
 
-* 画面に送受信情報を表示する。
+シリアル経由で ATOM へデータを送信すると左の丸が緑に，ATOM からデータを受信すると右の丸が赤になります。
+
+<div align="center">
+    <a href="https://gyazo.com/7e486322bc0ce261d38140716a926011"><img src="https://i.gyazo.com/7e486322bc0ce261d38140716a926011.png" alt="コマンド表示" width="300"/></a>
+</div>
+
+A ボタン（一番左のボタン）を押すと，画面に送信コマンドを表示するかを選択できます。ON にすると，送信しているコマンドを画面に表示します。この設定は本体の不揮発性メモリに保存され，起動時に前回の設定が反映されます。
