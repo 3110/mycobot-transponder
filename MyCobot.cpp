@@ -99,6 +99,8 @@ const char *MyCobot::getCommandName(const int cmd)
     return "Program Resume";
   case MyCobot::TASK_STOP:
     return "Task Stop";
+  case MyCobot::IS_MOVING:
+    return "Is Moving?";
   case MyCobot::JOG_ANGLE:
     return "Jog Angle";
   case MyCobot::JOG_ABSOLUTE:

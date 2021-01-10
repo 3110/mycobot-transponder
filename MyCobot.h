@@ -34,6 +34,7 @@ namespace MyCobot
     IS_PROGRAM_PAUSED = 0x27,
     PROGRAM_RESUME = 0x28,
     TASK_STOP = 0x29,
+    IS_MOVING = 0x2b,
     JOG_ANGLE = 0x30,
     JOG_ABSOLUTE = 0x31,
     JOG_COORD = 0x32,
