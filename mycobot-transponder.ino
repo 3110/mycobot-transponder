@@ -42,7 +42,7 @@ const int16_t COMMAND_HEIGHT = 26 * 2;
 const int32_t COMMAND_NAME_X_POS = 16;
 const int32_t COMMAND_NAME_Y_POS = 26;
 const uint8_t COMMAND_FONT_SIZE = 4;
-const uint8_t COMMAND_DATUM TL_DATUM;
+const uint8_t COMMAND_DATUM = TL_DATUM;
 const uint32_t COMMAND_COLOR = TFT_WHITE;
 const uint32_t COMMAND_BG_COLOR = TFT_BLACK;
 const char *COMMAND_LABEL = "Send:";
