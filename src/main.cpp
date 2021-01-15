@@ -67,12 +67,24 @@ const byte ATOM_LED_B = 0xff;
 const int SERIAL_BAUD_RATE = 115200;   // PC -> Basic
 const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 
+extern void setup(void);
+extern void loop(void);
+extern void setLED(const byte, const byte, const byte);
+extern void setTitle(const char *, const char *);
+extern void setCommandName(const int);
+extern void setSend(const bool);
+extern void setRecv(const bool);
+extern const char *getDumpButtonName(const bool);
+extern bool getDumped(void);
+extern bool toggleDumped(const bool);
+extern void setDumpButton(const int32_t, const int32_t, const bool);
+
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
 Preferences prefs;
 bool is_dumped;
 
-void setup()
+void setup(void)
 {
   M5.begin(true, false, true, false); // LCD, SD, Serial, I2C
   M5.Power.begin();
@@ -89,7 +101,7 @@ void setup()
   setDumpButton(DUMP_BUTTON_X_POS, DUMP_BUTTON_Y_POS, is_dumped);
 }
 
-void loop()
+void loop(void)
 {
   M5.update();
 
@@ -182,7 +194,7 @@ const char *getDumpButtonName(const bool dumped)
   return dumped ? DUMP_BUTTON_ON : DUMP_BUTTON_OFF;
 }
 
-bool getDumped()
+bool getDumped(void)
 {
   prefs.begin(PREFS_NAMESPACE, true);
   bool dumped = prefs.getBool(PREFS_IS_DUMPED, false);
