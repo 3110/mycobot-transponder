@@ -95,7 +95,6 @@ extern void setTitle(const char *, const char *);
 extern void setCommandName(const int, const uint16_t);
 extern void setSend(const bool);
 extern void setRecv(const bool);
-extern const char *getDumpButtonName(const bool);
 extern bool getDumped(void);
 extern bool toggleDumped(const bool);
 extern void setButtonName(enum ButtonName, const char *);
@@ -237,11 +236,6 @@ void setRecv(const bool isOn)
 {
   M5.Lcd.fillCircle(RECV_X_POS, RECV_Y_POS, RECV_RADIUS,
                     isOn ? RECV_ON_COLOR : RECV_OFF_COLOR);
-}
-
-const char *getDumpButtonName(const bool dumped)
-{
-  return dumped ? DUMP_BUTTON_ON : DUMP_BUTTON_OFF;
 }
 
 bool getDumped(void)
