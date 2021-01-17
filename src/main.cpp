@@ -94,9 +94,7 @@ extern void setRecv(const bool);
 extern const char *getDumpButtonName(const bool);
 extern bool getDumped(void);
 extern bool toggleDumped(const bool);
-extern void setButtonName(enum ButtonName,
-                          const int16_t, const int16_t,
-                          const char *);
+extern void setButtonName(enum ButtonName, const char *);
 extern void setDumpButton(const enum ButtonName, const bool dumped);
 
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
