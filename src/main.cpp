@@ -48,6 +48,12 @@ const uint32_t COMMAND_BG_COLOR = TFT_BLACK;
 const char *COMMAND_LABEL = "Send:";
 const int32_t COMMAND_LABEL_X_POS = 0;
 const int32_t COMMAND_LABEL_Y_POS = 0;
+const int32_t COMMAND_COUNTER_X_POS = 80;
+const int32_t COMMAND_COUNTER_Y_POS = 0;
+const uint8_t COMMAND_COUNTER_FONT_SIZE = COMMAND_FONT_SIZE;
+const uint8_t COMMAND_COUNTER_DATUM = TL_DATUM;
+const uint32_t COMMAND_COUNTER_COLOR = COMMAND_COLOR;
+const uint32_t COMMAND_COUNTER_BG_COLOR = COMMAND_BG_COLOR;
 
 const char *DUMP_BUTTON_ON = "ON";
 const char *DUMP_BUTTON_OFF = "OFF";
@@ -71,7 +77,7 @@ extern void setup(void);
 extern void loop(void);
 extern void setLED(const byte, const byte, const byte);
 extern void setTitle(const char *, const char *);
-extern void setCommandName(const int);
+extern void setCommandName(const int, const uint16_t);
 extern void setSend(const bool);
 extern void setRecv(const bool);
 extern const char *getDumpButtonName(const bool);
@@ -83,6 +89,7 @@ TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
 Preferences prefs;
 bool is_dumped;
+uint16_t command_counter;
 
 void setup(void)
 {
@@ -97,6 +104,8 @@ void setup(void)
   setTitle(TITLE, VERSION);
 
   frame_state = MyCobot::STATE_NONE;
+  command_counter = 0;
+
   is_dumped = getDumped();
   setDumpButton(DUMP_BUTTON_X_POS, DUMP_BUTTON_Y_POS, is_dumped);
 }
@@ -118,9 +127,13 @@ void loop(void)
     setSend(true);
     Serial2.write(b);
     frame_state = MyCobot::checkFrameState(frame_state, b);
-    if (is_dumped && frame_state == MyCobot::STATE_CMD)
+    if (frame_state == MyCobot::STATE_CMD)
     {
-      setCommandName(b);
+      ++command_counter;
+      if (is_dumped)
+      {
+        setCommandName(b, command_counter);
+      }
     }
   }
 
@@ -160,7 +173,7 @@ void setTitle(const char *title, const char *version)
   sprite.deleteSprite();
 }
 
-void setCommandName(const int cmd)
+void setCommandName(const int cmd, const uint16_t counter)
 {
   sprite.setColorDepth(8);
   sprite.createSprite(COMMAND_WIDTH, COMMAND_HEIGHT);
@@ -173,6 +186,9 @@ void setCommandName(const int cmd)
   sprite.drawString(MyCobot::getCommandName(cmd),
                     COMMAND_NAME_X_POS, COMMAND_NAME_Y_POS,
                     COMMAND_FONT_SIZE);
+  sprite.drawNumber(counter,
+                    COMMAND_COUNTER_X_POS, COMMAND_COUNTER_Y_POS,
+                    COMMAND_COUNTER_FONT_SIZE);
   sprite.pushSprite(COMMAND_X_POS, COMMAND_Y_POS);
   sprite.deleteSprite();
 }
