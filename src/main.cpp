@@ -55,16 +55,27 @@ const uint8_t COMMAND_COUNTER_DATUM = TL_DATUM;
 const uint32_t COMMAND_COUNTER_COLOR = COMMAND_COLOR;
 const uint32_t COMMAND_COUNTER_BG_COLOR = COMMAND_BG_COLOR;
 
+enum ButtonName
+{
+  ButtonA,
+  ButtonB,
+  ButtonC
+};
+
+const int16_t BUTTON_NAME_WIDTH = 16 * 5;
+const int16_t BUTTON_NAME_HEIGHT = 20;
+const int32_t BUTTON_A_NAME_X_POS = 65 - BUTTON_NAME_WIDTH / 2;
+const int32_t BUTTON_B_NAME_X_POS = 160 - BUTTON_NAME_WIDTH / 2;
+const int32_t BUTTON_C_NAME_X_POS = 255 - BUTTON_NAME_WIDTH / 2;
+const int32_t BUTTON_NAME_Y_POS = 210;
+const uint8_t BUTTON_NAME_FONT_SIZE = 4;
+const uint8_t BUTTON_NAME_DATUM = MC_DATUM;
+const uint32_t BUTTON_NAME_COLOR = TFT_WHITE;
+const uint32_t BUTTON_NAME_BG_COLOR = TFT_BLACK;
+
+const enum ButtonName DUMP_BUTTON_NAME = ButtonName::ButtonA;
 const char *DUMP_BUTTON_ON = "ON";
 const char *DUMP_BUTTON_OFF = "OFF";
-const uint8_t DUMP_BUTTON_FONT_SIZE = 4;
-const uint8_t DUMP_BUTTON_DATUM = MC_DATUM;
-const int32_t DUMP_BUTTON_X_POS = 40;
-const int32_t DUMP_BUTTON_Y_POS = 210;
-const int16_t DUMP_BUTTON_WIDTH = 48;
-const int16_t DUMP_BUTTON_HEIGHT = 20;
-const uint32_t DUMP_BUTTON_COLOR = TFT_WHITE;
-const uint32_t DUMP_BUTTON_BG_COLOR = TFT_BLACK;
 
 const byte ATOM_LED_R = 0xff;
 const byte ATOM_LED_G = 0xff;
@@ -83,7 +94,10 @@ extern void setRecv(const bool);
 extern const char *getDumpButtonName(const bool);
 extern bool getDumped(void);
 extern bool toggleDumped(const bool);
-extern void setDumpButton(const int32_t, const int32_t, const bool);
+extern void setButtonName(enum ButtonName,
+                          const int16_t, const int16_t,
+                          const char *);
+extern void setDumpButton(const enum ButtonName, const bool dumped);
 
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
@@ -107,7 +121,7 @@ void setup(void)
   command_counter = 0;
 
   is_dumped = getDumped();
-  setDumpButton(DUMP_BUTTON_X_POS, DUMP_BUTTON_Y_POS, is_dumped);
+  setDumpButton(DUMP_BUTTON_NAME, is_dumped);
 }
 
 void loop(void)
@@ -117,7 +131,7 @@ void loop(void)
   if (M5.BtnA.wasPressed())
   {
     is_dumped = toggleDumped(is_dumped);
-    setDumpButton(DUMP_BUTTON_X_POS, DUMP_BUTTON_Y_POS, is_dumped);
+    setDumpButton(DUMP_BUTTON_NAME, is_dumped);
   }
 
   setSend(false);
@@ -226,16 +240,36 @@ bool toggleDumped(const bool prev)
   return !prev;
 }
 
-void setDumpButton(const int32_t x, const int32_t y, const bool dumped)
+void setButtonName(enum ButtonName btn, const char *name)
 {
+  int32_t x = 0;
+  switch (btn)
+  {
+  case ButtonName::ButtonA:
+    x = BUTTON_A_NAME_X_POS;
+    break;
+  case ButtonName::ButtonB:
+    x = BUTTON_B_NAME_X_POS;
+    break;
+  case ButtonName::ButtonC:
+    x = BUTTON_C_NAME_X_POS;
+    break;
+  default:
+    return;
+  }
   sprite.setColorDepth(8);
-  sprite.createSprite(DUMP_BUTTON_WIDTH, DUMP_BUTTON_HEIGHT);
-  sprite.fillSprite(DUMP_BUTTON_BG_COLOR);
-  sprite.setTextColor(DUMP_BUTTON_COLOR);
-  sprite.setTextDatum(DUMP_BUTTON_DATUM);
-  sprite.drawString(dumped ? DUMP_BUTTON_ON : DUMP_BUTTON_OFF,
-                    DUMP_BUTTON_WIDTH / 2, DUMP_BUTTON_HEIGHT / 2,
-                    DUMP_BUTTON_FONT_SIZE);
-  sprite.pushSprite(x, y);
+  sprite.createSprite(BUTTON_NAME_WIDTH, BUTTON_NAME_HEIGHT);
+  sprite.fillSprite(BUTTON_NAME_BG_COLOR);
+  sprite.setTextColor(BUTTON_NAME_COLOR);
+  sprite.setTextDatum(BUTTON_NAME_DATUM);
+  sprite.drawString(name,
+                    BUTTON_NAME_WIDTH / 2, BUTTON_NAME_HEIGHT / 2,
+                    BUTTON_NAME_FONT_SIZE);
+  sprite.pushSprite(x, BUTTON_NAME_Y_POS);
   sprite.deleteSprite();
+}
+
+void setDumpButton(const enum ButtonName btn, const bool dumped)
+{
+  setButtonName(btn, is_dumped ? DUMP_BUTTON_ON : DUMP_BUTTON_OFF);
 }
