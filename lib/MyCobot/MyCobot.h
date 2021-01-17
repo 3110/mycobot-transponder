@@ -10,6 +10,7 @@ namespace MyCobot
   extern const byte FRAME_FOOTER;
 
   extern const byte CMD_SET_LED_LEN;
+  extern const byte CMD_SET_FREE_MOVE_LEN;
 
   enum Command
   {

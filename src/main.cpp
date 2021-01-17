@@ -5,7 +5,7 @@
 const char *PREFS_NAMESPACE = "transponder";
 const char *PREFS_IS_DUMPED = "is_dumped";
 
-const char *VERSION = "v0.0.1";
+const char *VERSION = "v0.0.2";
 const uint8_t VERSION_DATUM = TL_DATUM;
 const int32_t VERSION_X_POS = 5;
 const int32_t VERSION_Y_POS = 10;
@@ -77,6 +77,9 @@ const enum ButtonName DUMP_BUTTON_NAME = ButtonName::ButtonA;
 const char *DUMP_BUTTON_ON = "ON";
 const char *DUMP_BUTTON_OFF = "OFF";
 
+const char *FREE_MOVE_BUTTON_LABEL_NAME = "Free";
+const enum ButtonName FREE_MOVE_BUTTON_NAME = ButtonName::ButtonC;
+
 const byte ATOM_LED_R = 0xff;
 const byte ATOM_LED_G = 0xff;
 const byte ATOM_LED_B = 0xff;
@@ -87,6 +90,7 @@ const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 extern void setup(void);
 extern void loop(void);
 extern void setLED(const byte, const byte, const byte);
+extern void setFreeMove(void);
 extern void setTitle(const char *, const char *);
 extern void setCommandName(const int, const uint16_t);
 extern void setSend(const bool);
@@ -120,6 +124,8 @@ void setup(void)
 
   is_dumped = getDumped();
   setDumpButton(DUMP_BUTTON_NAME, is_dumped);
+
+  setButtonName(FREE_MOVE_BUTTON_NAME, FREE_MOVE_BUTTON_LABEL_NAME);
 }
 
 void loop(void)
@@ -132,11 +138,18 @@ void loop(void)
     setDumpButton(DUMP_BUTTON_NAME, is_dumped);
   }
 
-  setSend(false);
+  if (M5.BtnC.wasPressed())
+  {
+    if (frame_state == MyCobot::STATE_NONE)
+    {
+      setFreeMove();
+    }
+  }
+
+  setSend(Serial.available() > 0);
   while (Serial.available() > 0)
   {
     const int b = Serial.read();
-    setSend(true);
     Serial2.write(b);
     frame_state = MyCobot::checkFrameState(frame_state, b);
     if (frame_state == MyCobot::STATE_CMD)
@@ -149,10 +162,9 @@ void loop(void)
     }
   }
 
-  setRecv(false);
+  setRecv(Serial2.available() > 0);
   while (Serial2.available() > 0)
   {
-    setRecv(true);
     Serial.write(Serial2.read());
   }
 }
@@ -166,6 +178,16 @@ void setLED(const byte r, const byte g, const byte b)
   Serial2.write(r);
   Serial2.write(g);
   Serial2.write(b);
+  Serial2.write(MyCobot::FRAME_FOOTER);
+  Serial2.flush();
+}
+
+void setFreeMove(void)
+{
+  Serial2.write(MyCobot::FRAME_HEADER);
+  Serial2.write(MyCobot::FRAME_HEADER);
+  Serial2.write(MyCobot::CMD_SET_FREE_MOVE_LEN);
+  Serial2.write(MyCobot::SET_FREE_MOVE);
   Serial2.write(MyCobot::FRAME_FOOTER);
   Serial2.flush();
 }
