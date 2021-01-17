@@ -92,6 +92,7 @@ extern void loop(void);
 extern void setLED(const byte, const byte, const byte);
 extern void setFreeMove(void);
 extern void setTitle(const char *, const char *);
+extern void clearCommandName(void);
 extern void setCommandName(const int, const uint16_t);
 extern void setSend(const bool);
 extern void setRecv(const bool);
@@ -135,6 +136,10 @@ void loop(void)
   {
     is_dumped = toggleDumped(is_dumped);
     setDumpButton(DUMP_BUTTON_NAME, is_dumped);
+    if (!is_dumped)
+    {
+      clearCommandName();
+    }
   }
 
   if (M5.BtnC.wasPressed())
@@ -203,6 +208,15 @@ void setTitle(const char *title, const char *version)
   sprite.setTextDatum(TITLE_DATUM);
   sprite.drawString(title, TITLE_X_POS, TITLE_Y_POS, TITLE_FONT_SIZE);
   sprite.pushSprite(0, 0);
+  sprite.deleteSprite();
+}
+
+void clearCommandName(void)
+{
+  sprite.setColorDepth(8);
+  sprite.createSprite(COMMAND_WIDTH, COMMAND_HEIGHT);
+  sprite.fillSprite(COMMAND_BG_COLOR);
+  sprite.pushSprite(COMMAND_X_POS, COMMAND_Y_POS);
   sprite.deleteSprite();
 }
 
