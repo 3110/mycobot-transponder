@@ -23,3 +23,16 @@ A ボタン（一番左のボタン）を押すと，画面に送信コマンド
 コマンドが送られていない状態で C ボタン（一番右のボタン）を押すと，Set Free Move コマンドを送信します。サーボが固定されてしまっているときに押すと自由に動かせるようになります。
 
 ※v0.0.2 時点では，起動時に LED が白に光るときと Free ボタンを押したときに，どちらもコマンドを直接`Serial2`に書き込む関係で，送信ではなく受信扱いになって右の丸が赤になります。
+
+## インストール方法
+
+[PlatformIO](https://platformio.org/)環境に対応しています。動作確認は Windows 10 上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
+
+[Arduino IDE](https://www.arduino.cc/en/software)を使用する場合は，新たに以下のようなフォルダを用意して，`transponder.ino`を開いてください。
+
+```
+transponder
++-- transponder.ino  <-- src/main.cpp
++-- MyCobot.h        <-- lib/MyCobot/MyCobot.h
++-- MyCobot.cpp      <-- lib/MyCobot/MyCobot.cpp
+```
