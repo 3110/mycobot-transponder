@@ -28,6 +28,14 @@ A ボタン（一番左のボタン）を押すと，画面に送信コマンド
 
 [PlatformIO](https://platformio.org/)環境に対応しています。動作確認は Windows 10 上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
 
+```
+$ git clone https://github.com/3110/mycobot-transponder
+$ cd mycobot-transponder
+$ platformio run --target=upload
+```
+
+Basic に書き込む際のシリアルポートは自動判別されますが，うまくいかないときは`platformio.ini`の`upload_port`を設定してください。
+
 [Arduino IDE](https://www.arduino.cc/en/software)を使用する場合は，新たに以下のようなフォルダを用意して，`transponder.ino`を開いてください。
 
 ```
