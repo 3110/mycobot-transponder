@@ -26,7 +26,7 @@ namespace MyCobot
     IS_CONTROLLER_CONNECTED = 0x14,
     READ_NEXT_ERROR = 0x15,
     GET_ANGLES = 0x20,
-    WRITE_ANGLES = 0x21,
+    WRITE_ANGLE = 0x21,
     SET_ANGLES = 0x22,
     GET_COORDS = 0x23,
     WRITE_COORD = 0x24,

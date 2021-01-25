@@ -82,8 +82,8 @@ const char *MyCobot::getCommandName(const int cmd)
     return "Read Next Error";
   case MyCobot::GET_ANGLES:
     return "Get Angles";
-  case MyCobot::WRITE_ANGLES:
-    return "Write Angles";
+  case MyCobot::WRITE_ANGLE:
+    return "Write Angle";
   case MyCobot::SET_ANGLES:
     return "Set Angles";
   case MyCobot::GET_COORDS:
