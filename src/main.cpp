@@ -63,11 +63,11 @@ enum ButtonName
 };
 
 const int16_t BUTTON_NAME_WIDTH = 16 * 5;
-const int16_t BUTTON_NAME_HEIGHT = 20;
+const int16_t BUTTON_NAME_HEIGHT = 26;
 const int32_t BUTTON_A_NAME_X_POS = 65 - BUTTON_NAME_WIDTH / 2;
 const int32_t BUTTON_B_NAME_X_POS = 160 - BUTTON_NAME_WIDTH / 2;
 const int32_t BUTTON_C_NAME_X_POS = 255 - BUTTON_NAME_WIDTH / 2;
-const int32_t BUTTON_NAME_Y_POS = 210;
+const int32_t BUTTON_NAME_Y_POS = 204;
 const uint8_t BUTTON_NAME_FONT_SIZE = 4;
 const uint8_t BUTTON_NAME_DATUM = MC_DATUM;
 const uint32_t BUTTON_NAME_COLOR = TFT_WHITE;
