@@ -5,12 +5,14 @@
 
 namespace MyCobot
 {
+  extern const size_t N_JOINTS;
 
   extern const byte FRAME_HEADER;
   extern const byte FRAME_FOOTER;
 
   extern const byte CMD_SET_LED_LEN;
   extern const byte CMD_SET_FREE_MOVE_LEN;
+  extern const byte CMD_GET_ANGLES_LEN;
 
   enum Command
   {

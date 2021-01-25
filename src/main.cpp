@@ -73,9 +73,34 @@ const uint8_t BUTTON_NAME_DATUM = MC_DATUM;
 const uint32_t BUTTON_NAME_COLOR = TFT_WHITE;
 const uint32_t BUTTON_NAME_BG_COLOR = TFT_BLACK;
 
+const size_t JOINT_NAME_LEN = 4;
+const char JOINT_NAME_LABELS[][JOINT_NAME_LEN] = {
+    "J1:",
+    "J2:",
+    "J3:",
+    "J4:",
+    "J5:",
+    "J6:"};
+
+const int32_t SHOW_ANGLES_X_POS = 5;
+const int32_t SHOW_ANGLES_Y_POS = 155;
+const int16_t SHOW_ANGLES_WIDTH = 320;
+const int16_t SHOW_ANGLES_HEIGHT = 40;
+const int16_t SHOW_ANGLES_N_LABELS_IN_A_ROW = 3;
+const int16_t SHOW_ANGLES_LABEL_WIDTH = 115;
+const int16_t SHOW_ANGLES_LABEL_HEIGHT = 20;
+const int16_t SHOW_ANGLES_VALUE_INDENT = 30;
+const uint8_t SHOW_ANGLES_FONT_SIZE = 2;
+const uint8_t SHOW_ANGLES_DATUM = TL_DATUM;
+const uint32_t SHOW_ANGLES_COLOR = TFT_WHITE;
+const uint32_t SHOW_ANGLES_BG_COLOR = TFT_BLACK;
+
 const enum ButtonName DUMP_BUTTON_NAME = ButtonName::ButtonA;
 const char *DUMP_BUTTON_ON = "ON";
 const char *DUMP_BUTTON_OFF = "OFF";
+
+const char *SHOW_ANGLE_BUTTON_LABEL_NAME = "Angle";
+const enum ButtonName SHOW_ANGLE_BUTTON_NAME = ButtonName::ButtonB;
 
 const char *FREE_MOVE_BUTTON_LABEL_NAME = "Free";
 const enum ButtonName FREE_MOVE_BUTTON_NAME = ButtonName::ButtonC;
@@ -89,8 +114,13 @@ const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 
 extern void setup(void);
 extern void loop(void);
+
 extern void setLED(const byte, const byte, const byte);
 extern void setFreeMove(void);
+extern const bool findFrameHeader(void);
+extern const bool parseGetAnglesReply(float *, const size_t);
+extern bool getAngles(float *, const size_t);
+
 extern void setTitle(const char *, const char *);
 extern void clearCommandName(void);
 extern void setCommandName(const int, const uint16_t);
@@ -100,6 +130,7 @@ extern bool getDumped(void);
 extern bool toggleDumped(const bool);
 extern void setButtonName(enum ButtonName, const char *);
 extern void setDumpButton(const enum ButtonName, const bool dumped);
+extern void showJointAngles(float *, const size_t);
 
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
@@ -126,6 +157,7 @@ void setup(void)
   setDumpButton(DUMP_BUTTON_NAME, is_dumped);
 
   setButtonName(FREE_MOVE_BUTTON_NAME, FREE_MOVE_BUTTON_LABEL_NAME);
+  setButtonName(SHOW_ANGLE_BUTTON_NAME, SHOW_ANGLE_BUTTON_LABEL_NAME);
 }
 
 void loop(void)
@@ -139,6 +171,18 @@ void loop(void)
     if (!is_dumped)
     {
       clearCommandName();
+    }
+  }
+
+  if (M5.BtnB.wasPressed())
+  {
+    if (frame_state == MyCobot::STATE_NONE)
+    {
+      float angles[MyCobot::N_JOINTS] = {
+          0.0,
+      };
+      getAngles(angles, MyCobot::N_JOINTS);
+      showJointAngles(angles, MyCobot::N_JOINTS);
     }
   }
 
@@ -194,6 +238,57 @@ void setFreeMove(void)
   Serial2.write(MyCobot::SET_FREE_MOVE);
   Serial2.write(MyCobot::FRAME_FOOTER);
   Serial2.flush();
+}
+
+const bool findFrameHeader(void)
+{
+  int prev = -1;
+  int cur = -1;
+  while (Serial2.available() > 0)
+  {
+    cur = Serial2.read();
+    if (prev == MyCobot::FRAME_HEADER && cur == MyCobot::FRAME_HEADER)
+    {
+      return true;
+    }
+    prev = cur;
+  }
+  return false;
+}
+
+const bool parseGetAnglesReply(float *angles, const size_t n_angles)
+{
+  const int data_len = Serial2.read();
+  if (data_len == -1 || Serial2.available() != data_len)
+  {
+    return false;
+  }
+  const int cmd = Serial2.read();
+  if (cmd != MyCobot::Command::GET_ANGLES)
+  {
+    return false;
+  }
+  int high = 0;
+  int low = 0;
+  for (int i = 0; i < MyCobot::N_JOINTS; ++i)
+  {
+    high = Serial2.read();
+    low = Serial2.read();
+    angles[i] = (short)((high << 8 | low) & 0xFFFF) / 100.0;
+  }
+  return Serial2.read() == MyCobot::FRAME_FOOTER;
+}
+
+bool getAngles(float *angles, const size_t n_angles)
+{
+  Serial2.write(MyCobot::FRAME_HEADER);
+  Serial2.write(MyCobot::FRAME_HEADER);
+  Serial2.write(MyCobot::CMD_GET_ANGLES_LEN);
+  Serial2.write(MyCobot::GET_ANGLES);
+  Serial2.write(MyCobot::FRAME_FOOTER);
+  Serial2.flush();
+  delay(500);
+  return findFrameHeader() && parseGetAnglesReply(angles, n_angles);
 }
 
 void setTitle(const char *title, const char *version)
@@ -300,4 +395,24 @@ void setButtonName(enum ButtonName btn, const char *name)
 void setDumpButton(const enum ButtonName btn, const bool dumped)
 {
   setButtonName(btn, is_dumped ? DUMP_BUTTON_ON : DUMP_BUTTON_OFF);
+}
+
+void showJointAngles(float *angles, const size_t n_angles)
+{
+  int32_t x = 0;
+  int32_t y = 0;
+  sprite.setColorDepth(8);
+  sprite.createSprite(SHOW_ANGLES_WIDTH, SHOW_ANGLES_HEIGHT);
+  sprite.fillSprite(SHOW_ANGLES_BG_COLOR);
+  sprite.setTextColor(SHOW_ANGLES_COLOR);
+  sprite.setTextDatum(SHOW_ANGLES_DATUM);
+  for (int i = 0; i < n_angles; ++i)
+  {
+    x = (i % SHOW_ANGLES_N_LABELS_IN_A_ROW) * SHOW_ANGLES_LABEL_WIDTH;
+    y = i / SHOW_ANGLES_N_LABELS_IN_A_ROW * SHOW_ANGLES_LABEL_HEIGHT;
+    sprite.drawString(JOINT_NAME_LABELS[i], x, y, SHOW_ANGLES_FONT_SIZE);
+    sprite.drawFloat(angles[i], 2, x + SHOW_ANGLES_VALUE_INDENT, y, SHOW_ANGLES_FONT_SIZE);
+  }
+  sprite.pushSprite(SHOW_ANGLES_X_POS, SHOW_ANGLES_Y_POS);
+  sprite.deleteSprite();
 }

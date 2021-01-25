@@ -2,11 +2,14 @@
 
 using namespace MyCobot;
 
+const size_t MyCobot::N_JOINTS = 6;
+
 const byte MyCobot::FRAME_HEADER = 0xfe;
 const byte MyCobot::FRAME_FOOTER = 0xfa;
 
 const byte MyCobot::CMD_SET_LED_LEN = 5;
 const byte MyCobot::CMD_SET_FREE_MOVE_LEN = 2;
+const byte MyCobot::CMD_GET_ANGLES_LEN = 2;
 
 FrameState MyCobot::checkFrameState(const FrameState state, const int b)
 {
