@@ -5,7 +5,7 @@
 const char *PREFS_NAMESPACE = "transponder";
 const char *PREFS_IS_DUMPED = "is_dumped";
 
-const char *VERSION = "v0.0.2";
+const char *VERSION = "v0.0.3";
 const uint8_t VERSION_DATUM = TL_DATUM;
 const int32_t VERSION_X_POS = 5;
 const int32_t VERSION_Y_POS = 10;
