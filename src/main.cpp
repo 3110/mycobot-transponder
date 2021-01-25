@@ -270,7 +270,7 @@ const bool parseGetAnglesReply(float *angles, const size_t n_angles)
   }
   int high = 0;
   int low = 0;
-  for (int i = 0; i < MyCobot::N_JOINTS; ++i)
+  for (int i = 0; i < n_angles; ++i)
   {
     high = Serial2.read();
     low = Serial2.read();
