@@ -217,13 +217,13 @@ void loop(void)
     const int b = Serial.read();
     Serial2.write(b);
     frame_state = MyCobot::checkFrameState(frame_state, b);
-    if (frame_state != MyCobot::STATE_NONE and
-        frame_state != MyCobot::STATE_ILLEGAL)
+    if (frame_state == MyCobot::STATE_CMD)
     {
+      ++command_counter;
+    }
       if (frame_state == MyCobot::STATE_HEADER_START)
       {
         parse_position = 0;
-        clearDumpFrame();
       }
       else
       {
@@ -231,16 +231,15 @@ void loop(void)
       }
       if (is_dumped)
       {
-        showDumpFrame(frame_state, parse_position, b);
-      }
-    }
     if (frame_state == MyCobot::STATE_CMD)
     {
-      ++command_counter;
-      if (is_dumped)
-      {
         setCommandName(b, command_counter);
       }
+      if (frame_state == MyCobot::STATE_HEADER_START)
+      {
+        clearDumpFrame();
+      }
+      showDumpFrame(frame_state, parse_position, b);
     }
   }
 
