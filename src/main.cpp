@@ -145,6 +145,7 @@ extern void setButtonName(enum ButtonName, const char *);
 extern void setDumpButton(const enum ButtonName, const bool dumped);
 extern void showJointAngles(float *, const size_t);
 extern void showDumpFrame(const MyCobot::FrameState, const uint8_t, const int);
+extern void clearDumpFrame(void);
 
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
@@ -222,6 +223,7 @@ void loop(void)
       if (frame_state == MyCobot::STATE_HEADER_START)
       {
         parse_position = 0;
+        clearDumpFrame();
       }
       else
       {
@@ -477,5 +479,14 @@ void showDumpFrame(const MyCobot::FrameState state, const uint8_t pos, const int
                     SHOW_DUMP_FRAME_Y_POS +
                         pos / SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW *
                             SHOW_DUMP_FRAME_BYTE_HEIGHT);
+  sprite.deleteSprite();
+}
+
+void clearDumpFrame(void)
+{
+  sprite.setColorDepth(8);
+  sprite.createSprite(SHOW_DUMP_FRAME_WIDTH, SHOW_DUMP_FRAME_HEIGHT);
+  sprite.fillSprite(SHOW_DUMP_FRAME_BG_COLOR);
+  sprite.pushSprite(SHOW_DUMP_FRAME_X_POS, SHOW_DUMP_FRAME_Y_POS);
   sprite.deleteSprite();
 }
