@@ -95,6 +95,19 @@ const uint8_t SHOW_ANGLES_DATUM = TL_DATUM;
 const uint32_t SHOW_ANGLES_COLOR = TFT_WHITE;
 const uint32_t SHOW_ANGLES_BG_COLOR = TFT_BLACK;
 
+const int32_t SHOW_DUMP_FRAME_X_POS = 6;
+const int32_t SHOW_DUMP_FRAME_Y_POS = 110;
+const int16_t SHOW_DUMP_FRAME_WIDTH = 320 - SHOW_DUMP_FRAME_X_POS * 2;
+const int16_t SHOW_DUMP_FRAME_HEIGHT = 40;
+const uint8_t SHOW_DUMP_FRAME_DATUM = MC_DATUM;
+const uint32_t SHOW_DUMP_FRAME_COLOR = TFT_WHITE;
+const uint32_t SHOW_DUMP_FRAME_BG_COLOR = TFT_BLACK;
+const uint32_t SHOW_DUMP_FRAME_COMMAND_BG_COLOR = TFT_BLUE;
+const uint8_t SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW = 11;
+const uint8_t SHOW_DUMP_FRAME_BYTE_LENGTH = 28;
+const uint8_t SHOW_DUMP_FRAME_BYTE_HEIGHT = 20;
+const uint8_t SHOW_DUMP_FRAME_FONT_SIZE = 2;
+
 const enum ButtonName DUMP_BUTTON_NAME = ButtonName::ButtonA;
 const char *DUMP_BUTTON_ON = "ON";
 const char *DUMP_BUTTON_OFF = "OFF";
@@ -131,12 +144,14 @@ extern bool toggleDumped(const bool);
 extern void setButtonName(enum ButtonName, const char *);
 extern void setDumpButton(const enum ButtonName, const bool dumped);
 extern void showJointAngles(float *, const size_t);
+extern void showDumpFrame(const MyCobot::FrameState, const uint8_t, const int);
 
 TFT_eSprite sprite = TFT_eSprite(&M5.Lcd);
 MyCobot::FrameState frame_state;
 Preferences prefs;
 bool is_dumped;
 uint16_t command_counter;
+uint8_t parse_position;
 
 void setup(void)
 {
@@ -152,6 +167,7 @@ void setup(void)
 
   frame_state = MyCobot::STATE_NONE;
   command_counter = 0;
+  parse_position = 0;
 
   is_dumped = getDumped();
   setDumpButton(DUMP_BUTTON_NAME, is_dumped);
@@ -200,6 +216,22 @@ void loop(void)
     const int b = Serial.read();
     Serial2.write(b);
     frame_state = MyCobot::checkFrameState(frame_state, b);
+    if (frame_state != MyCobot::STATE_NONE and
+        frame_state != MyCobot::STATE_ILLEGAL)
+    {
+      if (frame_state == MyCobot::STATE_HEADER_START)
+      {
+        parse_position = 0;
+      }
+      else
+      {
+        ++parse_position;
+      }
+      if (is_dumped)
+      {
+        showDumpFrame(frame_state, parse_position, b);
+      }
+    }
     if (frame_state == MyCobot::STATE_CMD)
     {
       ++command_counter;
@@ -414,5 +446,36 @@ void showJointAngles(float *angles, const size_t n_angles)
     sprite.drawFloat(angles[i], 2, x + SHOW_ANGLES_VALUE_INDENT, y, SHOW_ANGLES_FONT_SIZE);
   }
   sprite.pushSprite(SHOW_ANGLES_X_POS, SHOW_ANGLES_Y_POS);
+  sprite.deleteSprite();
+}
+
+void showDumpFrame(const MyCobot::FrameState state, const uint8_t pos, const int b)
+{
+  static char s[3] = {
+      '\0',
+  };
+  sprite.setColorDepth(8);
+  sprite.createSprite(SHOW_DUMP_FRAME_BYTE_LENGTH, SHOW_DUMP_FRAME_BYTE_HEIGHT);
+  sprite.setTextColor(SHOW_DUMP_FRAME_COLOR);
+  sprite.setTextDatum(SHOW_DUMP_FRAME_DATUM);
+  if (state == MyCobot::STATE_CMD)
+  {
+    sprite.fillSprite(SHOW_DUMP_FRAME_COMMAND_BG_COLOR);
+  }
+  else
+  {
+    sprite.fillSprite(SHOW_DUMP_FRAME_BG_COLOR);
+  }
+  snprintf(s, sizeof(s), "%02X", b);
+  sprite.drawString(s,
+                    SHOW_DUMP_FRAME_BYTE_LENGTH / 2,
+                    SHOW_DUMP_FRAME_BYTE_HEIGHT / 2,
+                    SHOW_DUMP_FRAME_FONT_SIZE);
+  sprite.pushSprite(SHOW_DUMP_FRAME_X_POS +
+                        int(pos % SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW) *
+                            SHOW_DUMP_FRAME_BYTE_LENGTH,
+                    SHOW_DUMP_FRAME_Y_POS +
+                        int(pos / SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW) *
+                            SHOW_DUMP_FRAME_BYTE_HEIGHT);
   sprite.deleteSprite();
 }
