@@ -472,10 +472,10 @@ void showDumpFrame(const MyCobot::FrameState state, const uint8_t pos, const int
                     SHOW_DUMP_FRAME_BYTE_HEIGHT / 2,
                     SHOW_DUMP_FRAME_FONT_SIZE);
   sprite.pushSprite(SHOW_DUMP_FRAME_X_POS +
-                        int(pos % SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW) *
+                        (pos % SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW) *
                             SHOW_DUMP_FRAME_BYTE_LENGTH,
                     SHOW_DUMP_FRAME_Y_POS +
-                        int(pos / SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW) *
+                        pos / SHOW_DUMP_FRAME_N_BYTES_IN_A_ROW *
                             SHOW_DUMP_FRAME_BYTE_HEIGHT);
   sprite.deleteSprite();
 }
