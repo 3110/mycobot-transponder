@@ -5,7 +5,7 @@
 const char *PREFS_NAMESPACE = "transponder";
 const char *PREFS_IS_DUMPED = "is_dumped";
 
-const char *VERSION = "v0.0.3";
+const char *VERSION = "v0.0.4";
 const uint8_t VERSION_DATUM = TL_DATUM;
 const int32_t VERSION_X_POS = 5;
 const int32_t VERSION_Y_POS = 10;
@@ -221,18 +221,18 @@ void loop(void)
     {
       ++command_counter;
     }
-      if (frame_state == MyCobot::STATE_HEADER_START)
-      {
-        parse_position = 0;
-      }
-      else
-      {
-        ++parse_position;
-      }
-      if (is_dumped)
-      {
-    if (frame_state == MyCobot::STATE_CMD)
+    if (frame_state == MyCobot::STATE_HEADER_START)
     {
+      parse_position = 0;
+    }
+    else
+    {
+      ++parse_position;
+    }
+    if (is_dumped)
+    {
+      if (frame_state == MyCobot::STATE_CMD)
+      {
         setCommandName(b, command_counter);
       }
       if (frame_state == MyCobot::STATE_HEADER_START)
