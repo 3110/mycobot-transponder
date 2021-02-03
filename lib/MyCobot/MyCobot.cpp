@@ -24,7 +24,7 @@ FrameState MyCobot::checkFrameState(const FrameState state, const int b)
   case STATE_CMD_LEN:
     return STATE_CMD;
   case STATE_CMD:
-    return STATE_DATA;
+    return b == FRAME_FOOTER ? STATE_FOOTER : STATE_DATA;
   case STATE_DATA:
     return b == FRAME_FOOTER ? STATE_FOOTER : STATE_DATA;
   case STATE_FOOTER:
