@@ -163,6 +163,8 @@ const char *MyCobot::getCommandName(const int cmd)
     return "Set PWM Mode";
   case MyCobot::SET_PWM_OUTPUT:
     return "set PWM Output";
+  case MyCobot::GET_GRIPPER_VALUE:
+    return "Get Gripper Value";
   case MyCobot::SET_GRIPPER_STATE:
     return "Set Gripper State";
   case MyCobot::SET_GRIPPER_VALUE:
