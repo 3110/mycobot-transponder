@@ -149,14 +149,28 @@ const char *MyCobot::getCommandName(const int cmd)
     return "Set Servo Calibration";
   case MyCobot::VOID_JOINT_BRAKE:
     return "Void Joint Brake";
+  case MyCobot::RELEASE_SERVO:
+    return "Release Servo";
+  case MyCobot::FOCUS_SERVO:
+    return "Focus Servo";
   case MyCobot::SET_PIN_MODE:
     return "Set Pin Mode";
-  case MyCobot::SET_PIN_DATA:
-    return "Set Pin Data";
-  case MyCobot::GET_PIN_DATA:
-    return "Get Pin Data";
+  case MyCobot::SET_DIGITAL_OUTPUT:
+    return "Set Digital Output";
+  case MyCobot::GET_DIGITAL_INPUT:
+    return "Get Digital Input";
+  case MyCobot::SET_PWM_MODE:
+    return "Set PWM Mode";
+  case MyCobot::SET_PWM_OUTPUT:
+    return "set PWM Output";
   case MyCobot::SET_GRIPPER_STATE:
     return "Set Gripper State";
+  case MyCobot::SET_GRIPPER_VALUE:
+    return "Set Gripper Value";
+  case MyCobot::SET_GRIPPER_INI:
+    return "Set Gripper Ini";
+  case MyCobot::IS_GRIPPER_MOVING:
+    return "Is Gripper Moving?";
   case MyCobot::SET_LED:
     return "Set LED";
   default:
