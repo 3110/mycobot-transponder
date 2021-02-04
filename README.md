@@ -4,6 +4,8 @@ M5Stack Basic のシリアルから ATOM へコマンドを送信し，処理結
 
 ## インストール方法
 
+※この Transponder を使用する場合は，ATOM に Atom2.4 以降のファームウエアが書き込まれている必要があります。
+
 [PlatformIO](https://platformio.org/)環境に対応しています。動作確認は Windows 10 上で[PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode)を使用して実施しています。
 
 ```
@@ -63,7 +65,5 @@ A ボタン（一番左のボタン）を押すと，画面に送信状況を表
 コマンドが送られていない状態で C ボタン（一番右のボタン）を押すと，Set Free Move コマンドを送信します。サーボが固定されてしまっているときに押すと自由に動かせるようになります。
 
 ## 注意事項
-
-この Transponder を使用する場合は，ATOM に Atom2.4 以降のファームウエアが書き込まれている必要があります。
 
 v0.0.4 時点では，起動時に LED が白に光るときと Free ボタンを押したときに，どちらもコマンドを直接`Serial2`に書き込む関係で，送信ではなく受信扱いになって右の丸が赤になります。
