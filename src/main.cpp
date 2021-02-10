@@ -221,7 +221,9 @@ void loop(void)
     {
       ++command_counter;
     }
-    if (frame_state == MyCobot::STATE_HEADER_START)
+    if (frame_state == MyCobot::STATE_HEADER_START ||
+        frame_state == MyCobot::STATE_NONE ||
+        frame_state == MyCobot::STATE_ILLEGAL)
     {
       parse_position = 0;
     }
@@ -239,8 +241,12 @@ void loop(void)
       {
         clearDumpFrame();
       }
+      if (frame_state != MyCobot::STATE_NONE &&
+          frame_state != MyCobot::STATE_ILLEGAL)
+      {
       showDumpFrame(frame_state, parse_position, b);
     }
+  }
   }
 
   setRecv(Serial2.available() > 0);
