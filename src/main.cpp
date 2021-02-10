@@ -1,11 +1,16 @@
 #include <M5Stack.h>
 #include <Preferences.h>
 #include "MyCobot.h"
+#ifdef ENABLE_ESP_NOW
+#include "m5stack/EspNowReceiver.h"
+const uint8_t MYCOBOT_CHANNEL = 3;
+extern void onDataRecv(const uint8_t *, const uint8_t *, const int);
+#endif
 
 const char *PREFS_NAMESPACE = "transponder";
 const char *PREFS_IS_DUMPED = "is_dumped";
 
-const char *VERSION = "v0.0.4";
+const char *VERSION = "v0.0.5";
 const uint8_t VERSION_DATUM = TL_DATUM;
 const int32_t VERSION_X_POS = 5;
 const int32_t VERSION_Y_POS = 10;
@@ -34,6 +39,14 @@ const int32_t RECV_Y_POS = SEND_Y_POS;
 const int32_t RECV_RADIUS = SEND_RADIUS;
 const uint32_t RECV_ON_COLOR = TFT_RED;
 const uint32_t RECV_OFF_COLOR = SEND_OFF_COLOR;
+
+#ifdef ENABLE_ESP_NOW
+const int32_t ESP_NOW_X_POS = 255;
+const int32_t ESP_NOW_Y_POS = SEND_Y_POS;
+const int32_t ESP_NOW_RADIUS = SEND_RADIUS;
+const uint32_t ESP_NOW_ON_COLOR = TFT_YELLOW;
+const uint32_t ESP_NOW_OFF_COLOR = SEND_OFF_COLOR;
+#endif
 
 const int32_t COMMAND_X_POS = 0;
 const int32_t COMMAND_Y_POS = 50;
@@ -128,6 +141,7 @@ const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 extern void setup(void);
 extern void loop(void);
 
+extern void sendCommandByte(const int);
 extern void setLED(const byte, const byte, const byte);
 extern void setFreeMove(void);
 extern const bool findFrameHeader(void);
@@ -139,6 +153,9 @@ extern void clearCommandName(void);
 extern void setCommandName(const int, const uint16_t);
 extern void setSend(const bool);
 extern void setRecv(const bool);
+#ifdef ENABLE_ESP_NOW
+extern void setEspNow(const bool);
+#endif
 extern bool getDumped(void);
 extern bool toggleDumped(const bool);
 extern void setButtonName(enum ButtonName, const char *);
@@ -153,6 +170,10 @@ Preferences prefs;
 bool is_dumped;
 uint16_t command_counter;
 uint8_t parse_position;
+
+#ifdef ENABLE_ESP_NOW
+EspNowReceiver receiver(MYCOBOT_CHANNEL);
+#endif
 
 void setup(void)
 {
@@ -175,6 +196,10 @@ void setup(void)
 
   setButtonName(FREE_MOVE_BUTTON_NAME, FREE_MOVE_BUTTON_LABEL_NAME);
   setButtonName(SHOW_ANGLE_BUTTON_NAME, SHOW_ANGLE_BUTTON_LABEL_NAME);
+
+#ifdef ENABLE_ESP_NOW
+  setEspNow(receiver.begin(onDataRecv));
+#endif
 }
 
 void loop(void)
@@ -212,47 +237,53 @@ void loop(void)
   }
 
   setSend(Serial.available() > 0);
+  int b;
   while (Serial.available() > 0)
   {
-    const int b = Serial.read();
+    b = Serial.read();
     Serial2.write(b);
-    frame_state = MyCobot::checkFrameState(frame_state, b);
-    if (frame_state == MyCobot::STATE_CMD)
-    {
-      ++command_counter;
-    }
-    if (frame_state == MyCobot::STATE_HEADER_START ||
-        frame_state == MyCobot::STATE_NONE ||
-        frame_state == MyCobot::STATE_ILLEGAL)
-    {
-      parse_position = 0;
-    }
-    else
-    {
-      ++parse_position;
-    }
-    if (is_dumped)
-    {
-      if (frame_state == MyCobot::STATE_CMD)
-      {
-        setCommandName(b, command_counter);
-      }
-      if (frame_state == MyCobot::STATE_HEADER_START)
-      {
-        clearDumpFrame();
-      }
-      if (frame_state != MyCobot::STATE_NONE &&
-          frame_state != MyCobot::STATE_ILLEGAL)
-      {
-      showDumpFrame(frame_state, parse_position, b);
-    }
-  }
+    sendCommandByte(b);
   }
 
   setRecv(Serial2.available() > 0);
   while (Serial2.available() > 0)
   {
     Serial.write(Serial2.read());
+  }
+}
+
+void sendCommandByte(const int b)
+{
+  frame_state = MyCobot::checkFrameState(frame_state, b);
+  if (frame_state == MyCobot::STATE_CMD)
+  {
+    ++command_counter;
+  }
+  if (frame_state == MyCobot::STATE_HEADER_START ||
+      frame_state == MyCobot::STATE_NONE ||
+      frame_state == MyCobot::STATE_ILLEGAL)
+  {
+    parse_position = 0;
+  }
+  else
+  {
+    ++parse_position;
+  }
+  if (is_dumped)
+  {
+    if (frame_state == MyCobot::STATE_CMD)
+    {
+      setCommandName(b, command_counter);
+    }
+    if (frame_state == MyCobot::STATE_HEADER_START)
+    {
+      clearDumpFrame();
+    }
+    if (frame_state != MyCobot::STATE_NONE &&
+        frame_state != MyCobot::STATE_ILLEGAL)
+    {
+      showDumpFrame(frame_state, parse_position, b);
+    }
   }
 }
 
@@ -386,6 +417,14 @@ void setRecv(const bool isOn)
                     isOn ? RECV_ON_COLOR : RECV_OFF_COLOR);
 }
 
+#ifdef ENABLE_ESP_NOW
+void setEspNow(const bool isOn)
+{
+  M5.Lcd.fillCircle(ESP_NOW_X_POS, ESP_NOW_Y_POS, ESP_NOW_RADIUS,
+                    isOn ? ESP_NOW_ON_COLOR : ESP_NOW_OFF_COLOR);
+}
+#endif
+
 bool getDumped(void)
 {
   prefs.begin(PREFS_NAMESPACE, true);
@@ -495,3 +534,13 @@ void clearDumpFrame(void)
   sprite.pushSprite(SHOW_DUMP_FRAME_X_POS, SHOW_DUMP_FRAME_Y_POS);
   sprite.deleteSprite();
 }
+
+#ifdef ENABLE_ESP_NOW
+void onDataRecv(const uint8_t *macAddr, const uint8_t *data, const int len)
+{
+  for (int i = 0; i < len; ++i)
+  {
+    Serial2.write(data[i]);
+  }
+}
+#endif
