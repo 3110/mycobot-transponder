@@ -2,7 +2,7 @@
 
 M5Stack Basic のシリアルから ATOM へコマンドを送信し，処理結果を ATOM から受信する[オリジナルの Transponder](https://github.com/elephantrobotics/myCobot/tree/main/Arduino/MycobotBasic/examples/Transponder)に起動画面とデータ送受信の様子を表示する機能を付けました。
 
-v0.0.5 より，[ESP-NOW](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/network/esp_now.html) 経由でコマンドをブロードキャストする機能を追加しました。デフォルトではこの機能はオフになっています。
+v0.0.5 より，[ESP-NOW](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/network/esp_now.html) 経由でコマンドを受信する機能を追加しました。デフォルトではこの機能はオフになっています。
 
 ## インストール方法
 
