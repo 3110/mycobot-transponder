@@ -1,5 +1,15 @@
 #include "m5stack/EspNowReceiver.h"
 
+const uint8_t MYCOBOT_CHANNEL = 3;
+
+void onDataRecv(const uint8_t *macAddr, const uint8_t *data, const int len)
+{
+    for (int i = 0; i < len; ++i)
+    {
+        Serial2.write(data[i]);
+    }
+}
+
 EspNowReceiver::EspNowReceiver(const uint8_t channel) : ESP_NOW_BROADCAST_ADDRESS{
                                                             0xFF,
                                                             0xFF,
@@ -16,7 +26,7 @@ EspNowReceiver::~EspNowReceiver(void)
 {
 }
 
-bool EspNowReceiver::begin(esp_now_recv_cb_t cb)
+bool EspNowReceiver::begin(void)
 {
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -26,7 +36,7 @@ bool EspNowReceiver::begin(esp_now_recv_cb_t cb)
     {
         return false;
     }
-    if (esp_now_register_recv_cb(cb) != ESP_OK)
+    if (esp_now_register_recv_cb(onDataRecv) != ESP_OK)
     {
         return false;
     }

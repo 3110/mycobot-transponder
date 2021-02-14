@@ -1,8 +1,12 @@
 #ifndef _ESP_NOW_RECEIVER_H
 #define _ESP_NOW_RECEIVER_H
 
+#include <Arduino.h>
 #include <esp_now.h>
 #include <WiFi.h>
+
+extern const uint8_t MYCOBOT_CHANNEL;
+extern void onDataRecv(const uint8_t *, const uint8_t *, const int);
 
 class EspNowReceiver
 {
@@ -10,7 +14,7 @@ public:
     EspNowReceiver(const uint8_t channel);
     virtual ~EspNowReceiver(void);
 
-    bool begin(esp_now_recv_cb_t cb);
+    bool begin();
 
 protected:
     void initEspNow(void);
