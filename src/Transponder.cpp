@@ -129,6 +129,8 @@ void Transponder::dumpCommand(int b)
     }
     if (mycobot.isInFrame())
     {
-        uiTask.drawDataFrame(mycobot.getFrameState(), mycobot.getParsePosition(), b);
+        uiTask.drawDataFrame(mycobot.getFrameState(),
+                             mycobot.getParsePosition(),
+                             b);
     }
 }
