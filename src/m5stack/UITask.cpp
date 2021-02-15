@@ -19,10 +19,6 @@ void drawUI(void *arg)
     }
 }
 
-UIParts::UIParts(void)
-{
-}
-
 UITitle::UITitle(void)
 {
 }

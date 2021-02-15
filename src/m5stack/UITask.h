@@ -12,13 +12,6 @@ typedef uint8_t font_datum_t;
 
 class UITask;
 
-class UIParts
-{
-public:
-    UIParts(void);
-    virtual ~UIParts(void) = 0;
-};
-
 class UITitle
 {
 public:
