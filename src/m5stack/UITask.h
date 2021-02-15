@@ -1,5 +1,5 @@
-#ifndef UI_TASK_H_
-#define UI_TASK_H_
+#ifndef _UI_TASK_H
+#define _UI_TASK_H
 
 #include <M5Stack.h>
 #include "MyCobot.h"
@@ -103,32 +103,33 @@ public:
 class UICommandName
 {
 public:
-    const coord_t X_POS = 0;
-    const coord_t Y_POS = 50;
-    const length_t WIDTH = 320;
-    const length_t HEIGHT = 26 * 2;
+    static const coord_t X_POS = 0;
+    static const coord_t Y_POS = 50;
+    static const length_t WIDTH = 320;
+    static const length_t HEIGHT = 26 * 2;
 
-    const font_size_t FONT_SIZE = 4;
-    const font_datum_t TEXT_DATUM = TL_DATUM;
-    const color_t BG_COLOR = TFT_BLACK;
-    const color_t TEXT_COLOR = TFT_WHITE;
+    static const font_size_t FONT_SIZE = 4;
+    static const font_datum_t TEXT_DATUM = TL_DATUM;
+    static const color_t BG_COLOR = TFT_BLACK;
+    static const color_t TEXT_COLOR = TFT_WHITE;
 
-    const char *const COMMAND_LABEL = "Send:";
-    const coord_t COMMAND_LABEL_X_POS = 0;
-    const coord_t COMMAND_LABEL_Y_POS = 0;
+    static const char *const COMMAND_LABEL;
+    static const coord_t COMMAND_LABEL_X_POS = 0;
+    static const coord_t COMMAND_LABEL_Y_POS = 0;
 
-    const coord_t COMMAND_COUNTER_X_POS = 80;
-    const coord_t COMMAND_COUNTER_Y_POS = 0;
+    static const coord_t COMMAND_COUNTER_X_POS = 80;
+    static const coord_t COMMAND_COUNTER_Y_POS = 0;
 
-    const coord_t COMMAND_NAME_X_POS = 16;
-    const coord_t COMMAND_NAME_Y_POS = 26;
-    const length_t COMMAND_NAME_WIDTH = 320 - COMMAND_NAME_X_POS;
-    const length_t COMMAND_NAME_HEIGHT = 26;
+    static const coord_t COMMAND_NAME_X_POS = 16;
+    static const coord_t COMMAND_NAME_Y_POS = 26;
+    static const length_t COMMAND_NAME_WIDTH = 320 - COMMAND_NAME_X_POS;
+    static const length_t COMMAND_NAME_HEIGHT = 26;
 
     UICommandName(void);
     virtual ~UICommandName(void);
 
-    virtual void draw(TFT_eSprite &sprite, int cmd, uint16_t counter);
+    virtual void draw(TFT_eSprite &sprite,
+                      const char *const cmd, uint16_t counter);
     void clear(TFT_eSprite &sprite);
 };
 
@@ -178,8 +179,7 @@ public:
     UIDataFrame(void);
     virtual ~UIDataFrame(void);
 
-    virtual void draw(TFT_eSprite &sprite, MyCobot::FrameState state,
-                      uint8_t pos, int b);
+    virtual void draw(TFT_eSprite &sprite, DataFrameState state, uint8_t pos, int b);
     virtual void clear(TFT_eSprite &sprite);
 };
 
@@ -212,6 +212,7 @@ public:
     virtual const char *const getLabel(void) const;
     virtual coord_t getX(void) const;
     virtual void setDumped(bool dumped);
+    virtual bool isDumped(void) const;
 
 private:
     static const coord_t X_POS = 65 - WIDTH / 2;
@@ -257,14 +258,17 @@ public:
 #ifdef ENABLE_ESP_NOW
     virtual void drawEspNowStatus(bool isOn);
 #endif
-    virtual void drawCommandName(int cmd, uint16_t counter);
+    virtual void drawCommandName(const char *const cmd, uint16_t counter);
     virtual void clearCommandName(void);
     virtual void drawJointAngles(float *angles, size_t n_angles);
-    virtual void drawDataFrame(MyCobot::FrameState state, uint8_t pos, int b);
+    virtual void drawDataFrame(DataFrameState state, uint8_t pos, int b);
     virtual void clearDataFrame(void);
     virtual void drawButtonA(bool dumped);
     virtual void drawButtonB(void);
     virtual void drawButtonC(void);
+
+    virtual bool isDumped(void) const;
+    virtual void setDumped(bool dumped);
 
     TFT_eSprite &getSprite(void);
 

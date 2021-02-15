@@ -1,6 +1,8 @@
 #include "UITask.h"
 
 const char *const UITask::NAME = "UI Task";
+const char *const UICommandName::COMMAND_LABEL = "Send:";
+
 const size_t JOINT_NAME_LEN = 4;
 const char JOINT_NAME_LABELS[][JOINT_NAME_LEN] = {
     "J1:",
@@ -105,7 +107,8 @@ UICommandName::~UICommandName(void)
 {
 }
 
-void UICommandName::draw(TFT_eSprite &sprite, int cmd, uint16_t counter)
+void UICommandName::draw(TFT_eSprite &sprite,
+                         const char *const name, uint16_t counter)
 {
     sprite.setColorDepth(8);
     sprite.createSprite(WIDTH, HEIGHT);
@@ -115,7 +118,7 @@ void UICommandName::draw(TFT_eSprite &sprite, int cmd, uint16_t counter)
     sprite.drawString(COMMAND_LABEL,
                       COMMAND_LABEL_X_POS, COMMAND_LABEL_Y_POS,
                       FONT_SIZE);
-    sprite.drawString(MyCobot::getCommandName(cmd),
+    sprite.drawString(name,
                       COMMAND_NAME_X_POS, COMMAND_NAME_Y_POS,
                       FONT_SIZE);
     sprite.drawNumber(counter,
@@ -171,7 +174,7 @@ UIDataFrame::~UIDataFrame(void)
 }
 
 void UIDataFrame::draw(TFT_eSprite &sprite,
-                       MyCobot::FrameState state, uint8_t pos, int b)
+                       DataFrameState state, uint8_t pos, int b)
 {
     static char s[3] = {
         '\0',
@@ -180,7 +183,8 @@ void UIDataFrame::draw(TFT_eSprite &sprite,
     sprite.createSprite(BYTE_LENGTH, BYTE_HEIGHT);
     sprite.setTextColor(TEXT_COLOR);
     sprite.setTextDatum(DATUM);
-    sprite.fillSprite(state == MyCobot::STATE_CMD ? COMMAND_BG_COLOR : BG_COLOR);
+    sprite.fillSprite(
+        state == DataFrameState::STATE_CMD ? COMMAND_BG_COLOR : BG_COLOR);
     snprintf(s, sizeof(s), "%02X", b);
     sprite.drawString(s, BYTE_LENGTH / 2, BYTE_HEIGHT / 2, FONT_SIZE);
     sprite.pushSprite(X_POS + (pos % N_BYTES_IN_A_ROW) * BYTE_LENGTH,
@@ -240,6 +244,11 @@ void UIHardButtonA::setDumped(bool dumped)
     this->dumped = dumped;
 }
 
+bool UIHardButtonA::isDumped(void) const
+{
+    return dumped;
+}
+
 UIHardButtonB::UIHardButtonB(void)
 {
 }
@@ -287,7 +296,7 @@ UITask::~UITask(void)
 bool UITask::begin(const BaseType_t coreId)
 {
     const BaseType_t result = xTaskCreatePinnedToCore(
-        drawUI, this->NAME, 8192, NULL, 1, NULL, coreId);
+        drawUI, NAME, 8192, NULL, 1, NULL, coreId);
     return result == pdPASS;
 }
 
@@ -298,60 +307,70 @@ void UITask::drawTitle(const char *const title, const char *const version)
 
 void UITask::drawRecvStatus(bool isOn)
 {
-    this->recvStatus.draw(getSprite(), isOn);
+    recvStatus.draw(getSprite(), isOn);
 }
 
 void UITask::drawSendStatus(bool isOn)
 {
-    this->sendStatus.draw(getSprite(), isOn);
+    sendStatus.draw(getSprite(), isOn);
 }
 
 #ifdef ENABLE_ESP_NOW
 void UITask::drawEspNowStatus(bool isOn)
 {
-    this->espNowStatus.draw(getSprite(), isOn);
+    espNowStatus.draw(getSprite(), isOn);
 }
 #endif
 
-void UITask::drawCommandName(int cmd, uint16_t counter)
+void UITask::drawCommandName(const char *const cmd, uint16_t counter)
 {
-    this->commandName.draw(getSprite(), cmd, counter);
+    commandName.draw(getSprite(), cmd, counter);
 }
 
 void UITask::clearCommandName(void)
 {
-    this->commandName.clear(getSprite());
+    commandName.clear(getSprite());
 }
 
 void UITask::drawJointAngles(float *angles, size_t n_angles)
 {
-    this->jointAngles.draw(getSprite(), angles, n_angles);
+    jointAngles.draw(getSprite(), angles, n_angles);
 }
 
-void UITask::drawDataFrame(MyCobot::FrameState state, uint8_t pos, int b)
+void UITask::drawDataFrame(DataFrameState state, uint8_t pos, int b)
 {
-    this->dataFrame.draw(getSprite(), state, pos, b);
+    dataFrame.draw(getSprite(), state, pos, b);
 }
 
 void UITask::clearDataFrame(void)
 {
-    this->dataFrame.clear(getSprite());
+    dataFrame.clear(getSprite());
 }
 
 void UITask::drawButtonA(bool dumped)
 {
-    this->buttonA.setDumped(dumped);
-    this->buttonA.draw(getSprite());
+    buttonA.setDumped(dumped);
+    buttonA.draw(getSprite());
 }
 
 void UITask::drawButtonB(void)
 {
-    this->buttonB.draw(getSprite());
+    buttonB.draw(getSprite());
 }
 
 void UITask::drawButtonC(void)
 {
-    this->buttonC.draw(getSprite());
+    buttonC.draw(getSprite());
+}
+
+bool UITask::isDumped(void) const
+{
+    return buttonA.isDumped();
+}
+
+void UITask::setDumped(bool dumped)
+{
+    buttonA.setDumped(dumped);
 }
 
 TFT_eSprite &UITask::getSprite(void)
