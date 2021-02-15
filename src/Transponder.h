@@ -10,12 +10,18 @@
 class Transponder
 {
 public:
+    static const byte DEFAULT_LED_R = 0xff;
+    static const byte DEFAULT_LED_G = 0xff;
+    static const byte DEFAULT_LED_B = 0xff;
+
     static const char *const getVersion(void);
 
     Transponder(void);
     virtual ~Transponder(void);
 
-    virtual void begin(byte r, byte g, byte b);
+    virtual void begin(byte r = DEFAULT_LED_R,
+                       byte g = DEFAULT_LED_G,
+                       byte b = DEFAULT_LED_B);
     virtual void send(void);
     virtual void recv(void);
 

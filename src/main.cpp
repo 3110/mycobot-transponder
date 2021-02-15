@@ -1,9 +1,5 @@
 #include "Transponder.h"
 
-const byte ATOM_LED_R = 0xff;
-const byte ATOM_LED_G = 0xff;
-const byte ATOM_LED_B = 0xff;
-
 Transponder transponder;
 
 void setup(void)
@@ -12,7 +8,7 @@ void setup(void)
   M5.Power.begin();
   dacWrite(25, 0); // disable mic
 
-  transponder.begin(ATOM_LED_R, ATOM_LED_G, ATOM_LED_B);
+  transponder.begin();
 }
 
 void loop(void)
