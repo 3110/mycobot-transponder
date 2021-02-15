@@ -43,12 +43,11 @@ void Transponder::begin(byte r, byte g, byte b)
 
 void Transponder::send(void)
 {
-    drawSendStatus(Serial.available() > 0);
+    uiTask.drawSendStatus(Serial.available() > 0);
     int b;
     while (Serial.available() > 0)
     {
         b = Serial.read();
-        Serial2.write(b);
         sendCommandByte(b);
     }
 }
@@ -56,7 +55,7 @@ void Transponder::send(void)
 void Transponder::recv(void)
 {
 
-    drawRecvStatus(Serial2.available() > 0);
+    uiTask.drawRecvStatus(Serial2.available() > 0);
     while (Serial2.available() > 0)
     {
         Serial.write(Serial2.read());
@@ -89,21 +88,11 @@ bool Transponder::toggleDumped(void)
 
 void Transponder::sendCommandByte(int b)
 {
-    DataFrameState state = mycobot.parse(b);
+    Serial2.write(b);
+    mycobot.parse(b);
     if (dumped)
     {
-        if (state == STATE_CMD)
-        {
-            uiTask.drawCommandName(mycobot.getCommandName(b), mycobot.getCommandCounter());
-        }
-        if (state == STATE_HEADER_START)
-        {
-            uiTask.clearDataFrame();
-        }
-        if (state != STATE_NONE && state != STATE_ILLEGAL)
-        {
-            uiTask.drawDataFrame(state, mycobot.getParsePosition(), b);
-        }
+        dumpCommand(b);
     }
 }
 
@@ -127,12 +116,19 @@ void Transponder::setFreeMove(void)
     }
 }
 
-void Transponder::drawSendStatus(bool isOn)
+void Transponder::dumpCommand(int b)
 {
-    uiTask.drawSendStatus(isOn);
-}
-
-void Transponder::drawRecvStatus(bool isOn)
-{
-    uiTask.drawRecvStatus(isOn);
+    if (mycobot.isFrameState(STATE_CMD))
+    {
+        uiTask.drawCommandName(mycobot.getCommandName(b),
+                               mycobot.getCommandCounter());
+    }
+    if (mycobot.isFrameState(STATE_HEADER_START))
+    {
+        uiTask.clearDataFrame();
+    }
+    if (mycobot.isInFrame())
+    {
+        uiTask.drawDataFrame(mycobot.getFrameState(), mycobot.getParsePosition(), b);
+    }
 }

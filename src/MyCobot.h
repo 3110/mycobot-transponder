@@ -89,8 +89,8 @@ public:
   virtual ~MyCobotParser(void);
 
   virtual DataFrameState parse(int b);
-  virtual bool isFrameState(DataFrameState state);
-  virtual DataFrameState getFrameState(void);
+  virtual bool isFrameState(DataFrameState state) const;
+  virtual DataFrameState getFrameState(void) const;
   virtual const char *const getCommandName(int b);
   virtual const char *const getFrameStateName(DataFrameState state);
   virtual bool findFrameHeader(void);
@@ -117,7 +117,9 @@ public:
   virtual void setLED(byte r, byte g, byte b);
   virtual void setFreeMove(void);
   virtual bool getAngles(float *angles, size_t n_angles);
-  virtual bool isFrameState(DataFrameState state);
+  virtual bool isFrameState(DataFrameState state) const;
+  virtual bool isInFrame(void) const;
+  virtual DataFrameState getFrameState(void) const;
   virtual uint16_t getCommandCounter(void) const;
   virtual uint8_t getParsePosition(void) const;
   virtual DataFrameState parse(int b);

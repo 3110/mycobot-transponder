@@ -25,9 +25,8 @@ public:
 
 protected:
     virtual bool readDumped(void);
-    virtual void drawSendStatus(bool isOn);
-    virtual void drawRecvStatus(bool isOn);
     virtual void sendCommandByte(int b);
+    virtual void dumpCommand(int b);
 
 private:
     static const char *const VERSION;

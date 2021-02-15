@@ -10,7 +10,7 @@ MyCobotParser::~MyCobotParser(void)
 {
 }
 
-DataFrameState MyCobotParser::getFrameState(void)
+DataFrameState MyCobotParser::getFrameState(void) const
 {
   return frame_state;
 }
@@ -60,7 +60,7 @@ DataFrameState MyCobotParser::parse(int b)
   return frame_state;
 }
 
-bool MyCobotParser::isFrameState(DataFrameState state)
+bool MyCobotParser::isFrameState(DataFrameState state) const
 {
   return frame_state == state;
 }
@@ -306,9 +306,20 @@ bool MyCobot::getAngles(float *angles, const size_t n_angles)
   return parser.findFrameHeader() && parser.parseAnglesReply(angles, n_angles);
 }
 
-bool MyCobot::isFrameState(DataFrameState state)
+bool MyCobot::isFrameState(DataFrameState state) const
 {
   return parser.isFrameState(state);
+}
+
+bool MyCobot::isInFrame(void) const
+{
+  return !isFrameState(STATE_NONE) && !isFrameState(STATE_ILLEGAL);
+}
+
+DataFrameState MyCobot::getFrameState(void) const
+{
+
+  return parser.getFrameState();
 }
 
 uint16_t MyCobot::getCommandCounter(void) const
