@@ -33,11 +33,11 @@ DataFrameState MyCobotParser::parse(int b)
     break;
   case STATE_CMD_LEN:
     frame_state = STATE_CMD;
+    ++command_counter;
     ++parse_position;
     break;
   case STATE_CMD:
     frame_state = b == FRAME_FOOTER ? STATE_FOOTER : STATE_DATA;
-    ++command_counter;
     ++parse_position;
     break;
   case STATE_DATA:
