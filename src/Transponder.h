@@ -31,7 +31,6 @@ public:
 
 protected:
     virtual bool readDumped(void);
-    virtual void sendCommandByte(int b);
     virtual void dumpCommand(int b);
 
 private:

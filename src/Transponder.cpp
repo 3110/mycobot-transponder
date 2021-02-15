@@ -48,7 +48,12 @@ void Transponder::send(void)
     while (Serial.available() > 0)
     {
         b = Serial.read();
-        sendCommandByte(b);
+        Serial2.write(b);
+
+        if (dumped)
+        {
+            dumpCommand(b);
+        }
     }
 }
 
@@ -86,16 +91,6 @@ bool Transponder::toggleDumped(void)
     return dumped;
 }
 
-void Transponder::sendCommandByte(int b)
-{
-    Serial2.write(b);
-    mycobot.parse(b);
-    if (dumped)
-    {
-        dumpCommand(b);
-    }
-}
-
 void Transponder::drawJointAngles(void)
 {
     if (mycobot.isFrameState(STATE_NONE))
@@ -118,6 +113,7 @@ void Transponder::setFreeMove(void)
 
 void Transponder::dumpCommand(int b)
 {
+    mycobot.parse(b);
     if (mycobot.isFrameState(STATE_CMD))
     {
         uiTask.drawCommandName(mycobot.getCommandName(b),
