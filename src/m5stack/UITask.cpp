@@ -13,14 +13,6 @@ const char JOINT_NAME_LABELS[][JOINT_NAME_LEN] = {
     "J6:",
 };
 
-void drawUI(void *arg)
-{
-    while (1)
-    {
-        vTaskDelay(200 / portTICK_RATE_MS);
-    }
-}
-
 UITitle::UITitle(void)
 {
 }
@@ -291,13 +283,6 @@ UITask::UITask() : sprite(&M5.Lcd)
 
 UITask::~UITask(void)
 {
-}
-
-bool UITask::begin(const BaseType_t coreId)
-{
-    const BaseType_t result = xTaskCreatePinnedToCore(
-        drawUI, NAME, 8192, NULL, 1, NULL, coreId);
-    return result == pdPASS;
 }
 
 void UITask::drawTitle(const char *const title, const char *const version)

@@ -22,7 +22,7 @@ void loop(void)
 
   if (M5.BtnB.wasPressed())
   {
-    transponder.drawJointAngles();
+    transponder.getJointAngles();
   }
 
   if (M5.BtnC.wasPressed())

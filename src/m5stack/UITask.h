@@ -251,7 +251,6 @@ public:
     UITask(void);
     virtual ~UITask(void);
 
-    bool begin(const BaseType_t coreId);
     virtual void drawTitle(const char *const title, const char *const version);
     virtual void drawRecvStatus(bool isOn);
     virtual void drawSendStatus(bool isOn);
