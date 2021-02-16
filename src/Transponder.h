@@ -7,6 +7,25 @@
 #include "m5stack/EspNowReceiver.h"
 #endif
 
+class MyCobotXQueueTransponder : public MyCobotTransponder
+{
+public:
+    MyCobotXQueueTransponder(xQueueHandle &cmdHandle,
+                             xQueueHandle &sendHandle,
+                             xQueueHandle &recvHandle);
+    virtual ~MyCobotXQueueTransponder(void);
+
+    virtual void send(int b);
+    virtual int recv(void);
+    virtual bool available(void);
+    virtual void flush(void);
+
+private:
+    xQueueHandle &cmdHandle;
+    xQueueHandle &sendHandle;
+    xQueueHandle &recvHandle;
+};
+
 class Transponder
 {
 public:

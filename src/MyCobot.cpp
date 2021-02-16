@@ -1,13 +1,18 @@
 #include "MyCobot.h"
 
-MyCobotParser::MyCobotParser(void)
-    : frame_state(STATE_NONE), command_counter(0), parse_position(0)
+MyCobotParser::MyCobotParser(MyCobotTransponder *transponder)
+    : transponder(transponder),
+      frame_state(STATE_NONE),
+      command_counter(0),
+      parse_position(0)
 
 {
 }
 
 MyCobotParser::~MyCobotParser(void)
 {
+  delete (transponder);
+  transponder = NULL;
 }
 
 DataFrameState MyCobotParser::getFrameState(void) const
@@ -213,9 +218,9 @@ bool MyCobotParser::findFrameHeader(void)
 {
   int prev = -1;
   int cur = -1;
-  while (Serial2.available() > 0)
+  while (available())
   {
-    cur = Serial2.read();
+    cur = recv();
     if (prev == FRAME_HEADER && cur == FRAME_HEADER)
     {
       return true;
@@ -227,12 +232,12 @@ bool MyCobotParser::findFrameHeader(void)
 
 bool MyCobotParser::parseAnglesReply(float *angles, size_t n_angles)
 {
-  const int data_len = Serial2.read();
-  if (data_len == -1 || Serial2.available() != data_len)
+  const int data_len = recv();
+  if (data_len == -1 || available() != data_len)
   {
     return false;
   }
-  const int cmd = Serial2.read();
+  const int cmd = recv();
   if (cmd != GET_ANGLES)
   {
     return false;
@@ -241,11 +246,11 @@ bool MyCobotParser::parseAnglesReply(float *angles, size_t n_angles)
   int low = 0;
   for (int i = 0; i < n_angles; ++i)
   {
-    high = Serial2.read();
-    low = Serial2.read();
+    high = recv();
+    low = recv();
     angles[i] = (short)((high << 8 | low) & 0xFFFF) / 100.0;
   }
-  return Serial2.read() == FRAME_FOOTER;
+  return recv() == FRAME_FOOTER;
 }
 
 uint16_t MyCobotParser::getCommandCounter() const
@@ -258,57 +263,117 @@ uint8_t MyCobotParser::getParsePosition(void) const
   return parse_position;
 }
 
-MyCobot::MyCobot(void)
+void MyCobotParser::send(int b)
+{
+  transponder->send(b);
+}
+
+int MyCobotParser::recv(void)
+{
+  return transponder->recv();
+}
+
+bool MyCobotParser::available(void)
+{
+  return transponder->available();
+}
+
+void MyCobotParser::flush(void)
+{
+  transponder->flush();
+}
+
+MyCobotTransponder::~MyCobotTransponder(void)
+{
+}
+
+MyCobotSerialTransponder::MyCobotSerialTransponder(
+    HardwareSerial &s, HardwareSerial &r) : sendSerial(s), recvSerial(r)
+{
+}
+
+MyCobotSerialTransponder::~MyCobotSerialTransponder(void)
+{
+}
+
+void MyCobotSerialTransponder::send(int b)
+{
+  sendSerial.write(b);
+}
+
+int MyCobotSerialTransponder::recv(void)
+{
+  return recvSerial.read();
+}
+
+bool MyCobotSerialTransponder::available(void)
+{
+  return recvSerial.available() > 0;
+}
+
+void MyCobotSerialTransponder::flush(void)
+{
+
+  sendSerial.flush();
+};
+
+MyCobot::MyCobot(MyCobotParser *parser) : parser(parser)
 {
 }
 
 MyCobot::~MyCobot(void)
 {
+  delete (parser);
+  parser = NULL;
+}
+
+MyCobotParser &MyCobot::getParser(void)
+{
+  return *parser;
 }
 
 const char *const MyCobot::getCommandName(int cmd)
 {
-  return parser.getCommandName(cmd);
+  return parser->getCommandName(cmd);
 }
 
 void MyCobot::setLED(byte r, byte g, byte b)
 {
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(CMD_SET_LED_LEN);
-  Serial2.write(SET_LED);
-  Serial2.write(r);
-  Serial2.write(g);
-  Serial2.write(b);
-  Serial2.write(FRAME_FOOTER);
-  Serial2.flush();
+  parser->send(FRAME_HEADER);
+  parser->send(FRAME_HEADER);
+  parser->send(CMD_SET_LED_LEN);
+  parser->send(SET_LED);
+  parser->send(r);
+  parser->send(g);
+  parser->send(b);
+  parser->send(FRAME_FOOTER);
+  parser->flush();
 }
 
 void MyCobot::setFreeMove(void)
 {
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(CMD_SET_FREE_MOVE_LEN);
-  Serial2.write(SET_FREE_MOVE);
-  Serial2.write(FRAME_FOOTER);
-  Serial2.flush();
+  parser->send(FRAME_HEADER);
+  parser->send(FRAME_HEADER);
+  parser->send(CMD_SET_FREE_MOVE_LEN);
+  parser->send(SET_FREE_MOVE);
+  parser->send(FRAME_FOOTER);
+  parser->flush();
 }
 
 bool MyCobot::getAngles(float *angles, const size_t n_angles)
 {
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(FRAME_HEADER);
-  Serial2.write(CMD_GET_ANGLES_LEN);
-  Serial2.write(GET_ANGLES);
-  Serial2.write(FRAME_FOOTER);
-  Serial2.flush();
-  delay(500);
-  return parser.findFrameHeader() && parser.parseAnglesReply(angles, n_angles);
+  parser->send(FRAME_HEADER);
+  parser->send(FRAME_HEADER);
+  parser->send(CMD_GET_ANGLES_LEN);
+  parser->send(GET_ANGLES);
+  parser->send(FRAME_FOOTER);
+  parser->flush();
+  return parser->findFrameHeader() && parser->parseAnglesReply(angles, n_angles);
 }
 
 bool MyCobot::isFrameState(DataFrameState state) const
 {
-  return parser.isFrameState(state);
+  return parser->isFrameState(state);
 }
 
 bool MyCobot::isInFrame(void) const
@@ -319,21 +384,21 @@ bool MyCobot::isInFrame(void) const
 DataFrameState MyCobot::getFrameState(void) const
 {
 
-  return parser.getFrameState();
+  return parser->getFrameState();
 }
 
 uint16_t MyCobot::getCommandCounter(void) const
 {
 
-  return parser.getCommandCounter();
+  return parser->getCommandCounter();
 }
 
 uint8_t MyCobot::getParsePosition(void) const
 {
-  return parser.getParsePosition();
+  return parser->getParsePosition();
 }
 
 DataFrameState MyCobot::parse(int b)
 {
-  return parser.parse(b);
+  return parser->parse(b);
 }

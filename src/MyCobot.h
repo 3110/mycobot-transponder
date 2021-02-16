@@ -82,10 +82,37 @@ enum CommandCode
   SET_LED = 0x6a,
 };
 
+class MyCobotTransponder
+{
+public:
+  virtual ~MyCobotTransponder(void);
+  virtual void send(int b) = 0;
+  virtual int recv(void) = 0;
+  virtual bool available(void) = 0;
+  virtual void flush(void) = 0;
+};
+
+class MyCobotSerialTransponder : public MyCobotTransponder
+{
+public:
+  MyCobotSerialTransponder(HardwareSerial &s = Serial2,
+                           HardwareSerial &r = Serial2);
+  virtual ~MyCobotSerialTransponder(void);
+
+  virtual void send(int b);
+  virtual int recv(void);
+  virtual bool available(void);
+  virtual void flush(void);
+
+private:
+  HardwareSerial &sendSerial;
+  HardwareSerial &recvSerial;
+};
+
 class MyCobotParser
 {
 public:
-  MyCobotParser(void);
+  MyCobotParser(MyCobotTransponder *transponder);
   virtual ~MyCobotParser(void);
 
   virtual DataFrameState parse(int b);
@@ -99,7 +126,13 @@ public:
   virtual uint16_t getCommandCounter(void) const;
   virtual uint8_t getParsePosition(void) const;
 
+  virtual void send(int b);
+  virtual int recv(void);
+  virtual bool available(void);
+  virtual void flush(void);
+
 private:
+  MyCobotTransponder *transponder;
   DataFrameState frame_state;
   uint16_t command_counter;
   uint8_t parse_position;
@@ -110,7 +143,7 @@ class MyCobot
 public:
   static const size_t N_JOINTS = 6;
 
-  MyCobot(void);
+  MyCobot(MyCobotParser *parser = new MyCobotParser(new MyCobotSerialTransponder()));
   virtual ~MyCobot(void);
 
   virtual const char *const getCommandName(int cmd);
@@ -123,13 +156,14 @@ public:
   virtual uint16_t getCommandCounter(void) const;
   virtual uint8_t getParsePosition(void) const;
   virtual DataFrameState parse(int b);
+  virtual MyCobotParser &getParser(void);
 
 private:
   static const byte CMD_SET_LED_LEN = 5;
   static const byte CMD_SET_FREE_MOVE_LEN = 2;
   static const byte CMD_GET_ANGLES_LEN = 2;
 
-  MyCobotParser parser;
+  MyCobotParser *parser;
 };
 
 #endif // _MY_COBOT_H

@@ -5,8 +5,9 @@ const char *const Transponder::NAME = "Transponder";
 const char *const Transponder::PREFS_NAMESPACE = "transponder";
 const char *const Transponder::PREFS_IS_DUMPED = "is_dumped";
 
+xQueueHandle cmd_queue = xQueueCreate(128, sizeof(uint8_t));
 xQueueHandle send_queue = xQueueCreate(128, sizeof(uint8_t));
-xQueueHandle recv_queue = xQueueCreate(128, sizeof(uint8_t));
+xQueueHandle recv_queue = xQueueCreate(512, sizeof(uint8_t));
 
 const char *const Transponder::getVersion(void)
 {
@@ -18,11 +19,22 @@ void transpond(void *arg)
     int b;
     while (1)
     {
-        while (Serial.available() > 0)
+        if (xQueuePeek(cmd_queue, &b, 0) == pdPASS)
         {
-            b = Serial.read();
-            Serial2.write(b);
-            xQueueSend(send_queue, &b, 0);
+            while (xQueueReceive(cmd_queue, &b, 0) == pdPASS)
+            {
+                Serial2.write(b);
+                xQueueSend(send_queue, &b, 0);
+            }
+        }
+        else
+        {
+            while (Serial.available() > 0)
+            {
+                b = Serial.read();
+                Serial2.write(b);
+                xQueueSend(send_queue, &b, 0);
+            }
         }
         while (Serial2.available() > 0)
         {
@@ -34,12 +46,52 @@ void transpond(void *arg)
     }
 }
 
+MyCobotXQueueTransponder::MyCobotXQueueTransponder(
+    xQueueHandle &cmdHandle, xQueueHandle &sendHandle, xQueueHandle &recvHandle)
+    : cmdHandle(cmdHandle), sendHandle(sendHandle), recvHandle(recvHandle)
+{
+}
+
+MyCobotXQueueTransponder::~MyCobotXQueueTransponder(void)
+{
+}
+
+void MyCobotXQueueTransponder::send(int b)
+{
+    xQueueSend(cmdHandle, &b, 0);
+}
+
+int MyCobotXQueueTransponder::recv(void)
+{
+    int b = 0;
+    xQueueReceive(recvHandle, &b, 0);
+    return b;
+}
+
+bool MyCobotXQueueTransponder::available(void)
+{
+    int b = 0;
+    return xQueuePeek(recvHandle, &b, 0) == pdPASS;
+}
+
+void MyCobotXQueueTransponder::flush(void)
+{
+    // nothing to do
+}
+
 #ifdef ENABLE_ESP_NOW
-Transponder::Transponder(void) : receiver(MYCOBOT_CHANNEL)
+Transponder::Transponder(void)
+    : receiver(MYCOBOT_CHANNEL),
+      mycobot(new MyCobotParser(new MyCobotXQueueTransponder(cmd_queue,
+                                                             send_queue,
+                                                             recv_queue)))
 {
 }
 #else
 Transponder::Transponder(void)
+    : mycobot(new MyCobotParser(new MyCobotXQueueTransponder(cmd_queue,
+                                                             send_queue,
+                                                             recv_queue)))
 {
 }
 #endif
@@ -141,7 +193,7 @@ bool Transponder::toggleDumped(void)
 
 void Transponder::getJointAngles(void)
 {
-    if (mycobot.isFrameState(STATE_NONE))
+    if (mycobot.isFrameState(STATE_NONE) || mycobot.isFrameState(STATE_FOOTER))
     {
         float angles[MyCobot::N_JOINTS] = {
             0.0,
@@ -153,7 +205,7 @@ void Transponder::getJointAngles(void)
 
 void Transponder::setFreeMove(void)
 {
-    if (mycobot.isFrameState(STATE_NONE))
+    if (mycobot.isFrameState(STATE_NONE) || mycobot.isFrameState(STATE_FOOTER))
     {
         mycobot.setFreeMove();
     }
