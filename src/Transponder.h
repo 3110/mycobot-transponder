@@ -62,11 +62,11 @@ private:
     static const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
 
     Preferences prefs;
-    MyCobot mycobot;
-    UITask uiTask;
 #ifdef ENABLE_ESP_NOW
     EspNowReceiver receiver;
 #endif
+    MyCobot mycobot;
+    UITask uiTask;
     bool dumped;
 };
 
