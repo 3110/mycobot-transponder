@@ -1,4 +1,5 @@
 #include "m5stack/EspNowReceiver.h"
+#include "CommandQueue.h"
 
 const uint8_t MYCOBOT_CHANNEL = 3;
 
@@ -7,6 +8,7 @@ void onDataRecv(const uint8_t *macAddr, const uint8_t *data, const int len)
     for (int i = 0; i < len; ++i)
     {
         Serial2.write(data[i]);
+        xQueueSend(send_queue, &data[i], 0);
     }
 }
 

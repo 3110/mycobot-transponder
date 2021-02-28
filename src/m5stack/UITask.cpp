@@ -65,22 +65,6 @@ void UIStatus::draw(TFT_eSprite &sprite, bool isOn)
     M5.Lcd.fillCircle(x, y, radius, isOn ? onColor : offColor);
 }
 
-UIRecvStatus::UIRecvStatus() : UIStatus(X_POS, Y_POS, ON_COLOR, OFF_COLOR)
-{
-}
-
-UIRecvStatus::~UIRecvStatus()
-{
-}
-
-UISendStatus::UISendStatus() : UIStatus(X_POS, Y_POS, ON_COLOR, OFF_COLOR)
-{
-}
-
-UISendStatus::~UISendStatus()
-{
-}
-
 #ifdef ENABLE_ESP_NOW
 UIEspNowStatus::UIEspNowStatus() : UIStatus(X_POS, Y_POS, ON_COLOR, OFF_COLOR)
 {
@@ -153,6 +137,15 @@ void UIJointAngles::draw(TFT_eSprite &sprite, float *angles, size_t n_angles)
         sprite.drawString(JOINT_NAME_LABELS[i], x, y, FONT_SIZE);
         sprite.drawFloat(angles[i], 2, x + VALUE_INDENT, y, FONT_SIZE);
     }
+    sprite.pushSprite(X_POS, Y_POS);
+    sprite.deleteSprite();
+}
+
+void UIJointAngles::clear(TFT_eSprite &sprite)
+{
+    sprite.setColorDepth(8);
+    sprite.createSprite(WIDTH, HEIGHT);
+    sprite.fillSprite(BG_COLOR);
     sprite.pushSprite(X_POS, Y_POS);
     sprite.deleteSprite();
 }
@@ -290,16 +283,6 @@ void UITask::drawTitle(const char *const title, const char *const version)
     this->title.draw(getSprite(), title, version);
 }
 
-void UITask::drawRecvStatus(bool isOn)
-{
-    recvStatus.draw(getSprite(), isOn);
-}
-
-void UITask::drawSendStatus(bool isOn)
-{
-    sendStatus.draw(getSprite(), isOn);
-}
-
 #ifdef ENABLE_ESP_NOW
 void UITask::drawEspNowStatus(bool isOn)
 {
@@ -320,6 +303,11 @@ void UITask::clearCommandName(void)
 void UITask::drawJointAngles(float *angles, size_t n_angles)
 {
     jointAngles.draw(getSprite(), angles, n_angles);
+}
+
+void UITask::clearJointAngles(void)
+{
+    jointAngles.clear(getSprite());
 }
 
 void UITask::drawDataFrame(DataFrameState state, uint8_t pos, int b)

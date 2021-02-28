@@ -11,7 +11,7 @@ MyCobotParser::MyCobotParser(MyCobotTransponder *transponder)
 
 MyCobotParser::~MyCobotParser(void)
 {
-  delete (transponder);
+  delete transponder;
   transponder = NULL;
 }
 
@@ -233,7 +233,7 @@ bool MyCobotParser::findFrameHeader(void)
 bool MyCobotParser::parseAnglesReply(float *angles, size_t n_angles)
 {
   const int data_len = recv();
-  if (data_len == -1 || available() != data_len)
+  if (data_len == -1)
   {
     return false;
   }
@@ -268,14 +268,14 @@ void MyCobotParser::send(int b)
   transponder->send(b);
 }
 
-int MyCobotParser::recv(void)
+uint8_t MyCobotParser::recv(void)
 {
   return transponder->recv();
 }
 
 bool MyCobotParser::available(void)
 {
-  return transponder->available();
+  return transponder->is_received();
 }
 
 void MyCobotParser::flush(void)
@@ -283,97 +283,73 @@ void MyCobotParser::flush(void)
   transponder->flush();
 }
 
+void MyCobotParser::flush_received(void)
+{
+  transponder->flush_received();
+}
+
 MyCobotTransponder::~MyCobotTransponder(void)
 {
 }
 
-MyCobotSerialTransponder::MyCobotSerialTransponder(
-    HardwareSerial &s, HardwareSerial &r) : sendSerial(s), recvSerial(r)
-{
-}
-
-MyCobotSerialTransponder::~MyCobotSerialTransponder(void)
-{
-}
-
-void MyCobotSerialTransponder::send(int b)
-{
-  sendSerial.write(b);
-}
-
-int MyCobotSerialTransponder::recv(void)
-{
-  return recvSerial.read();
-}
-
-bool MyCobotSerialTransponder::available(void)
-{
-  return recvSerial.available() > 0;
-}
-
-void MyCobotSerialTransponder::flush(void)
-{
-
-  sendSerial.flush();
-};
-
-MyCobot::MyCobot(MyCobotParser *parser) : parser(parser)
+MyCobot::MyCobot(MyCobotTransponder *transponder) : parser(transponder)
 {
 }
 
 MyCobot::~MyCobot(void)
 {
-  delete (parser);
-  parser = NULL;
 }
 
 MyCobotParser &MyCobot::getParser(void)
 {
-  return *parser;
+  return parser;
 }
 
 const char *const MyCobot::getCommandName(int cmd)
 {
-  return parser->getCommandName(cmd);
+  return parser.getCommandName(cmd);
 }
 
 void MyCobot::setLED(byte r, byte g, byte b)
 {
-  parser->send(FRAME_HEADER);
-  parser->send(FRAME_HEADER);
-  parser->send(CMD_SET_LED_LEN);
-  parser->send(SET_LED);
-  parser->send(r);
-  parser->send(g);
-  parser->send(b);
-  parser->send(FRAME_FOOTER);
-  parser->flush();
+  parser.send(FRAME_HEADER);
+  parser.send(FRAME_HEADER);
+  parser.send(CMD_SET_LED_LEN);
+  parser.send(SET_LED);
+  parser.send(r);
+  parser.send(g);
+  parser.send(b);
+  parser.send(FRAME_FOOTER);
+  parser.flush();
 }
 
 void MyCobot::setFreeMove(void)
 {
-  parser->send(FRAME_HEADER);
-  parser->send(FRAME_HEADER);
-  parser->send(CMD_SET_FREE_MOVE_LEN);
-  parser->send(SET_FREE_MOVE);
-  parser->send(FRAME_FOOTER);
-  parser->flush();
+  parser.send(FRAME_HEADER);
+  parser.send(FRAME_HEADER);
+  parser.send(CMD_SET_FREE_MOVE_LEN);
+  parser.send(SET_FREE_MOVE);
+  parser.send(FRAME_FOOTER);
+  parser.flush();
+  delay(100);
+  parser.flush_received();
 }
 
 bool MyCobot::getAngles(float *angles, const size_t n_angles)
 {
-  parser->send(FRAME_HEADER);
-  parser->send(FRAME_HEADER);
-  parser->send(CMD_GET_ANGLES_LEN);
-  parser->send(GET_ANGLES);
-  parser->send(FRAME_FOOTER);
-  parser->flush();
-  return parser->findFrameHeader() && parser->parseAnglesReply(angles, n_angles);
+  parser.send(FRAME_HEADER);
+  parser.send(FRAME_HEADER);
+  parser.send(CMD_GET_ANGLES_LEN);
+  parser.send(GET_ANGLES);
+  parser.send(FRAME_FOOTER);
+  parser.flush();
+  delay(10);
+  return parser.findFrameHeader() && parser.parseAnglesReply(angles, n_angles);
 }
 
 bool MyCobot::isFrameState(DataFrameState state) const
 {
-  return parser->isFrameState(state);
+  return parser.isFrameState(state);
 }
 
 bool MyCobot::isInFrame(void) const
@@ -384,21 +360,21 @@ bool MyCobot::isInFrame(void) const
 DataFrameState MyCobot::getFrameState(void) const
 {
 
-  return parser->getFrameState();
+  return parser.getFrameState();
 }
 
 uint16_t MyCobot::getCommandCounter(void) const
 {
 
-  return parser->getCommandCounter();
+  return parser.getCommandCounter();
 }
 
 uint8_t MyCobot::getParsePosition(void) const
 {
-  return parser->getParsePosition();
+  return parser.getParsePosition();
 }
 
 DataFrameState MyCobot::parse(int b)
 {
-  return parser->parse(b);
+  return parser.parse(b);
 }

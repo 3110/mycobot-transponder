@@ -62,35 +62,11 @@ private:
     const color_t offColor;
 };
 
-class UIRecvStatus : public UIStatus
-{
-public:
-    static const coord_t X_POS = 305;
-    static const coord_t Y_POS = 14;
-    static const color_t ON_COLOR = TFT_RED;
-    static const color_t OFF_COLOR = TFT_BLACK;
-
-    UIRecvStatus();
-    virtual ~UIRecvStatus();
-};
-
-class UISendStatus : public UIStatus
-{
-public:
-    static const coord_t X_POS = 280;
-    static const coord_t Y_POS = 14;
-    static const color_t ON_COLOR = TFT_GREEN;
-    static const color_t OFF_COLOR = TFT_BLACK;
-
-    UISendStatus();
-    virtual ~UISendStatus();
-};
-
 #ifdef ENABLE_ESP_NOW
 class UIEspNowStatus : public UIStatus
 {
 public:
-    static const coord_t X_POS = 255;
+    static const coord_t X_POS = 305;
     static const coord_t Y_POS = 14;
     static const color_t ON_COLOR = TFT_YELLOW;
     static const color_t OFF_COLOR = TFT_BLACK;
@@ -155,6 +131,7 @@ public:
     virtual ~UIJointAngles(void);
 
     virtual void draw(TFT_eSprite &sprite, float *angles, size_t n_angles);
+    virtual void clear(TFT_eSprite &sprite);
 };
 
 class UIDataFrame
@@ -252,14 +229,13 @@ public:
     virtual ~UITask(void);
 
     virtual void drawTitle(const char *const title, const char *const version);
-    virtual void drawRecvStatus(bool isOn);
-    virtual void drawSendStatus(bool isOn);
 #ifdef ENABLE_ESP_NOW
     virtual void drawEspNowStatus(bool isOn);
 #endif
     virtual void drawCommandName(const char *const cmd, uint16_t counter);
     virtual void clearCommandName(void);
     virtual void drawJointAngles(float *angles, size_t n_angles);
+    virtual void clearJointAngles(void);
     virtual void drawDataFrame(DataFrameState state, uint8_t pos, int b);
     virtual void clearDataFrame(void);
     virtual void drawButtonA(bool dumped);
@@ -277,8 +253,6 @@ private:
     TFT_eSprite sprite;
 
     UITitle title;
-    UIRecvStatus recvStatus;
-    UISendStatus sendStatus;
 #ifdef ENABLE_ESP_NOW
     UIEspNowStatus espNowStatus;
 #endif

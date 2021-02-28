@@ -85,28 +85,12 @@ enum CommandCode
 class MyCobotTransponder
 {
 public:
-  virtual ~MyCobotTransponder(void);
-  virtual void send(int b) = 0;
-  virtual int recv(void) = 0;
-  virtual bool available(void) = 0;
+  virtual ~MyCobotTransponder() = 0;
+  virtual bool is_received(void) = 0;
+  virtual void send(uint8_t b) = 0;
+  virtual uint8_t recv(void) = 0;
   virtual void flush(void) = 0;
-};
-
-class MyCobotSerialTransponder : public MyCobotTransponder
-{
-public:
-  MyCobotSerialTransponder(HardwareSerial &s = Serial2,
-                           HardwareSerial &r = Serial2);
-  virtual ~MyCobotSerialTransponder(void);
-
-  virtual void send(int b);
-  virtual int recv(void);
-  virtual bool available(void);
-  virtual void flush(void);
-
-private:
-  HardwareSerial &sendSerial;
-  HardwareSerial &recvSerial;
+  virtual void flush_received(void) = 0;
 };
 
 class MyCobotParser
@@ -127,9 +111,10 @@ public:
   virtual uint8_t getParsePosition(void) const;
 
   virtual void send(int b);
-  virtual int recv(void);
+  virtual uint8_t recv(void);
   virtual bool available(void);
   virtual void flush(void);
+  virtual void flush_received(void);
 
 private:
   MyCobotTransponder *transponder;
@@ -143,7 +128,7 @@ class MyCobot
 public:
   static const size_t N_JOINTS = 6;
 
-  MyCobot(MyCobotParser *parser = new MyCobotParser(new MyCobotSerialTransponder()));
+  MyCobot(MyCobotTransponder *transponder);
   virtual ~MyCobot(void);
 
   virtual const char *const getCommandName(int cmd);
@@ -163,7 +148,7 @@ private:
   static const byte CMD_SET_FREE_MOVE_LEN = 2;
   static const byte CMD_GET_ANGLES_LEN = 2;
 
-  MyCobotParser *parser;
+  MyCobotParser parser;
 };
 
 #endif // _MY_COBOT_H

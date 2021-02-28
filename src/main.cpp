@@ -29,7 +29,5 @@ void loop(void)
   {
     transponder.setFreeMove();
   }
-
-  transponder.send();
-  transponder.recv();
+  transponder.update();
 }

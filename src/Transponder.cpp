@@ -1,40 +1,30 @@
 #include "Transponder.h"
 
-const char *const Transponder::VERSION = "v0.0.5";
-const char *const Transponder::NAME = "Transponder";
 const char *const Transponder::PREFS_NAMESPACE = "transponder";
 const char *const Transponder::PREFS_IS_DUMPED = "is_dumped";
 
-xQueueHandle cmd_queue = xQueueCreate(128, sizeof(uint8_t));
-xQueueHandle send_queue = xQueueCreate(128, sizeof(uint8_t));
-xQueueHandle recv_queue = xQueueCreate(512, sizeof(uint8_t));
+const char *const Transponder::getName(void)
+{
+    return TRANSPONDER_NAME;
+}
 
 const char *const Transponder::getVersion(void)
 {
-    return VERSION;
+    return TRANSPONDER_VERSION;
 }
 
 void transpond(void *arg)
 {
-    int b;
+    uint8_t b;
+    while (Serial.read() != -1)
+        ;
     while (1)
     {
-        if (xQueuePeek(cmd_queue, &b, 0) == pdPASS)
+        while (Serial.available() > 0)
         {
-            while (xQueueReceive(cmd_queue, &b, 0) == pdPASS)
-            {
-                Serial2.write(b);
-                xQueueSend(send_queue, &b, 0);
-            }
-        }
-        else
-        {
-            while (Serial.available() > 0)
-            {
-                b = Serial.read();
-                Serial2.write(b);
-                xQueueSend(send_queue, &b, 0);
-            }
+            b = Serial.read();
+            Serial2.write(b);
+            xQueueSend(send_queue, &b, 0);
         }
         while (Serial2.available() > 0)
         {
@@ -46,52 +36,56 @@ void transpond(void *arg)
     }
 }
 
-MyCobotXQueueTransponder::MyCobotXQueueTransponder(
-    xQueueHandle &cmdHandle, xQueueHandle &sendHandle, xQueueHandle &recvHandle)
-    : cmdHandle(cmdHandle), sendHandle(sendHandle), recvHandle(recvHandle)
+SerialQueueTransponder::SerialQueueTransponder(HardwareSerial &sendSerial,
+                                               xQueueHandle &sendHandle,
+                                               xQueueHandle &recvHandle)
+    : sendSerial(sendSerial), sendHandle(sendHandle), recvHandle(recvHandle)
 {
 }
 
-MyCobotXQueueTransponder::~MyCobotXQueueTransponder(void)
+SerialQueueTransponder::~SerialQueueTransponder(void)
 {
 }
 
-void MyCobotXQueueTransponder::send(int b)
+bool SerialQueueTransponder::is_received(void)
 {
-    xQueueSend(cmdHandle, &b, 0);
+    return uxQueueMessagesWaiting(recvHandle) > 0;
 }
 
-int MyCobotXQueueTransponder::recv(void)
+void SerialQueueTransponder::send(uint8_t b)
 {
-    int b = 0;
-    xQueueReceive(recvHandle, &b, 0);
+    sendSerial.write(b);
+    xQueueSend(sendHandle, &b, 0);
+}
+
+uint8_t SerialQueueTransponder::recv(void)
+{
+    uint8_t b = 0;
+    xQueueReceive(recvHandle, &b, portMAX_DELAY);
     return b;
 }
 
-bool MyCobotXQueueTransponder::available(void)
+void SerialQueueTransponder::flush(void)
 {
-    int b = 0;
-    return xQueuePeek(recvHandle, &b, 0) == pdPASS;
+    sendSerial.flush();
 }
 
-void MyCobotXQueueTransponder::flush(void)
+void SerialQueueTransponder::flush_received(void)
 {
-    // nothing to do
+    uint8_t b;
+    while (xQueueReceive(recvHandle, &b, 0) == pdTRUE)
+        ;
 }
 
 #ifdef ENABLE_ESP_NOW
 Transponder::Transponder(void)
     : receiver(MYCOBOT_CHANNEL),
-      mycobot(new MyCobotParser(new MyCobotXQueueTransponder(cmd_queue,
-                                                             send_queue,
-                                                             recv_queue)))
+      mycobot(new SerialQueueTransponder(Serial2, send_queue, recv_queue))
 {
 }
 #else
 Transponder::Transponder(void)
-    : mycobot(new MyCobotParser(new MyCobotXQueueTransponder(cmd_queue,
-                                                             send_queue,
-                                                             recv_queue)))
+    : mycobot(new SerialQueueTransponder(Serial2, send_queue, recv_queue))
 {
 }
 #endif
@@ -106,65 +100,17 @@ bool Transponder::begin(BaseType_t core, byte r, byte g, byte b)
     Serial2.begin(SERIAL2_BAUD_RATE);
 
     const BaseType_t result = xTaskCreatePinnedToCore(
-        transpond, NAME, 8192, NULL, 1, NULL, core);
+        transpond, getName(), 8192, NULL, 1, NULL, core);
 
-    mycobot.setLED(r, g, b);
-
-    uiTask.drawTitle(NAME, VERSION);
+    uiTask.drawTitle(getName(), getVersion());
     uiTask.drawButtonA(readDumped());
     uiTask.drawButtonB();
     uiTask.drawButtonC();
 #ifdef ENABLE_ESP_NOW
     uiTask.drawEspNowStatus(receiver.begin());
 #endif
+    mycobot.setLED(r, g, b);
     return result == pdPASS;
-}
-
-void Transponder::send(void)
-{
-    uint8_t b = 0;
-    const bool is_sent = xQueuePeek(send_queue, &b, 0) == pdPASS;
-    uiTask.drawSendStatus(is_sent);
-    while (xQueueReceive(send_queue, &b, 0) == pdPASS)
-    {
-        if (dumped)
-        {
-            mycobot.parse(b);
-            if (mycobot.isFrameState(STATE_CMD))
-            {
-                uiTask.drawCommandName(mycobot.getCommandName(b),
-                                       mycobot.getCommandCounter());
-            }
-            if (mycobot.isFrameState(STATE_HEADER_START))
-            {
-                uiTask.clearDataFrame();
-            }
-            if (mycobot.isInFrame())
-            {
-                uiTask.drawDataFrame(mycobot.getFrameState(),
-                                     mycobot.getParsePosition(),
-                                     b);
-            }
-        }
-    }
-    if (is_sent)
-    {
-        uiTask.drawSendStatus(false);
-    }
-}
-
-void Transponder::recv(void)
-{
-    uint8_t b = 0;
-    const bool is_recv = xQueuePeek(recv_queue, &b, 0) == pdPASS;
-    uiTask.drawRecvStatus(is_recv);
-    while (xQueueReceive(recv_queue, &b, 0) == pdPASS)
-    {
-    }
-    if (is_recv)
-    {
-        uiTask.drawRecvStatus(false);
-    }
 }
 
 bool Transponder::readDumped(void)
@@ -187,6 +133,7 @@ bool Transponder::toggleDumped(void)
     {
         uiTask.clearCommandName();
         uiTask.clearDataFrame();
+        uiTask.clearJointAngles();
     }
     return dumped;
 }
@@ -205,8 +152,32 @@ void Transponder::getJointAngles(void)
 
 void Transponder::setFreeMove(void)
 {
-    if (mycobot.isFrameState(STATE_NONE) || mycobot.isFrameState(STATE_FOOTER))
+    mycobot.setFreeMove();
+}
+
+void Transponder::update(void)
+{
+    uint8_t b = 0;
+    while (xQueueReceive(send_queue, &b, 0) == pdTRUE)
     {
-        mycobot.setFreeMove();
+        mycobot.parse(b);
+        if (dumped)
+        {
+            if (mycobot.isFrameState(STATE_CMD))
+            {
+                uiTask.drawCommandName(mycobot.getCommandName(b),
+                                       mycobot.getCommandCounter());
+            }
+            if (mycobot.isFrameState(STATE_HEADER_START))
+            {
+                uiTask.clearDataFrame();
+            }
+            if (mycobot.isInFrame())
+            {
+                uiTask.drawDataFrame(mycobot.getFrameState(),
+                                     mycobot.getParsePosition(),
+                                     b);
+            }
+        }
     }
 }
