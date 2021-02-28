@@ -1,3 +1,15 @@
 {
     "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "files.associations": {
+        "array": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp",
+        "initializer_list": "cpp",
+        "random": "cpp",
+        "*.tcc": "cpp",
+        "system_error": "cpp"
+    },
 }
