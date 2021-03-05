@@ -124,6 +124,8 @@ const char *const MyCobotParser::getCommandName(int cmd)
     return "Jog Coord";
   case SEND_JOG_INCREMENT:
     return "Send Jog Increment";
+  case JOG_STOP:
+    return "Jog Stop";
   case SET_ENCODER:
     return "Set Encoder";
   case GET_ENCODER:
