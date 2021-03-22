@@ -1,7 +1,7 @@
 #include "m5stack/EspNowReceiver.h"
 #include "CommandQueue.h"
 
-const uint8_t MYCOBOT_CHANNEL = 3;
+const uint8_t MYCOBOT_CHANNEL = 1;
 
 void onDataRecv(const uint8_t *macAddr, const uint8_t *data, const int len)
 {
