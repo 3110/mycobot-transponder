@@ -49,6 +49,7 @@ enum CommandCode
   JOG_ABSOLUTE = 0x31,
   JOG_COORD = 0x32,
   SEND_JOG_INCREMENT = 0x33,
+  JOG_STOP = 0x34,
   SET_ENCODER = 0x3a,
   GET_ENCODER = 0x3b,
   SET_ENCODERS = 0x3c,
