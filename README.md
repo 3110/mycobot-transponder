@@ -23,9 +23,10 @@ $ platformio run --target=upload
 
 I have tested the program with [PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode) on Windows 10.
 
-The serial port is automatically detected. You should specify 'upload_port' in 'platformio.ino` if it doesn't work.
+The serial port to write the program is automatically detected.
+If it is not detected, you can specify `upload_port` in `platformio.ino`.
 
-If you compile the program with `-DENABLE_ESP_NOW` in [env:m5stack-basic]` section of `platformio.ini`, the program can receive commands using ESP-NOW.
+If you compile the program with `-DENABLE_ESP_NOW` in ` [env:m5stack-basic]` section of `platformio.ini`, the program can receive commands using ESP-NOW.
 
 If you compile the program using [Arduino IDE](https://www.arduino.cc/en/software), you have to prepare the following folder structure and open `transponder.ino`:
 
@@ -87,4 +88,4 @@ If the button C(right-most) is pressed when no command is sent, the 'Set Free Mo
 You can move joints freely in case joints are locked.
 ## Notes
 
-From v0.1.0, The green(send) and red(receive) circles on the right corner, which display the data transmission status in real time, are removed(they are meaningless).
+From v0.1.0, the green(send) and red(receive) circles on the right corner, which display the data transmission status in real time, are removed(they are meaningless).
