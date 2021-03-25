@@ -1,7 +1,7 @@
 #ifndef TRANSPONDER_H_
 #define TRANSPONDER_H_
 
-#define TRANSPONDER_VERSION "v0.1.0"
+#define TRANSPONDER_VERSION "v0.1.1"
 #define TRANSPONDER_NAME "Transponder"
 
 #include <Preferences.h>
