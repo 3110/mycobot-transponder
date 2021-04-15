@@ -71,7 +71,7 @@ When the button A(left-most) is pressed, you can select whether to show the data
 If the data transmission status is 'ON', the sending command, the number of commands sent, and the byte sequence of commands are displayed on the screen.
 The command number(the 4th byte) will have a blue background.
 
-The setting of whether to display the data transmission status is saved in the non-volatile storage, and the setting will be reflected at next startup.
+The setting of whether to display the data transmission status is saved in the non-volatile storage, and the setting will be reflected at the next startup.
 
 ## Show Joint Angles(Button B)
 
@@ -79,13 +79,13 @@ The setting of whether to display the data transmission status is saved in the n
     <a href="https://gyazo.com/a7c6de94343eb087f280160a3e90d87f"><img src="https://i.gyazo.com/a7c6de94343eb087f280160a3e90d87f.png" alt="Joint Angles" width="300"/></a>
 </div>
 
-If the button B(middle) is pressed when no command is sent, the 'Get Angles' command is send to display the joint angles on the screen.
-The joint angles are not updated in real time.
+If the button B(middle) is pressed when no command is sent, the 'Get Angles' command is sent to display the joint angles on the screen.
+The joint angles are not updated in real-time.
 
 ## Free All Joints(Button C)
 
-If the button C(right-most) is pressed when no command is sent, the 'Set Free Move' command is send.
+If the button C(right-most) is pressed when no command is sent, the 'Set Free Move' command is sent.
 You can move joints freely in case joints are locked.
 ## Notes
 
-From v0.1.0, the green(send) and red(receive) circles on the right corner, which display the data transmission status in real time, are removed(they are meaningless).
+From v0.1.0, the green(send) and red(receive) circles on the right corner, which display the data transmission status in real-time, are removed(they are meaningless).
