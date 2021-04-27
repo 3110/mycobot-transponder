@@ -110,6 +110,13 @@ bool Transponder::begin(BaseType_t core, byte r, byte g, byte b)
     uiTask.drawEspNowStatus(receiver.begin());
 #endif
     mycobot.setLED(r, g, b);
+
+    pinMode(15, OUTPUT);
+    // for Suction Pump
+    pinMode(5, OUTPUT);
+    digitalWrite(5, HIGH);
+    pinMode(2, OUTPUT);
+
     return result == pdPASS;
 }
 
@@ -155,6 +162,72 @@ void Transponder::setFreeMove(void)
     mycobot.setFreeMove();
 }
 
+void Transponder::updateUI(byte b)
+{
+    if (mycobot.isFrameState(STATE_CMD))
+    {
+        uiTask.drawCommandName(mycobot.getCommandName(b),
+                               mycobot.getCommandCounter());
+    }
+    if (mycobot.isFrameState(STATE_HEADER_START))
+    {
+        uiTask.clearDataFrame();
+    }
+    if (mycobot.isInFrame())
+    {
+        uiTask.drawDataFrame(mycobot.getFrameState(),
+                             mycobot.getParsePosition(),
+                             b);
+    }
+}
+
+void Transponder::parseSetBasic(void) {
+    uint8_t b = 0;
+    uint8_t pinNo = 0;
+    uint8_t pinData = 0;
+
+    if (xQueueReceive(send_queue, &pinNo, 0) != pdTRUE) {
+        return;
+    }
+    mycobot.parse(pinNo);
+    if (dumped)
+    {
+        updateUI(pinNo);
+    }
+    if (!mycobot.isFrameState(STATE_DATA))
+    {
+        return;
+    }
+
+    if (xQueueReceive(send_queue, &pinData, 0) != pdTRUE)
+    {
+        return;
+    }
+    mycobot.parse(pinData);
+    if (dumped)
+    {
+        updateUI(pinData);
+    }
+    if (!mycobot.isFrameState(STATE_DATA))
+    {
+        return;
+    }
+
+    if (xQueueReceive(send_queue, &b, 0) != pdTRUE)
+    {
+        return;
+    }
+    mycobot.parse(b);
+    if (dumped)
+    {
+        updateUI(b);
+    }
+    if (mycobot.isFrameState(STATE_FOOTER))
+    {
+        digitalWrite(pinNo, pinData);
+    }
+}
+
 void Transponder::update(void)
 {
     uint8_t b = 0;
@@ -163,21 +236,11 @@ void Transponder::update(void)
         mycobot.parse(b);
         if (dumped)
         {
-            if (mycobot.isFrameState(STATE_CMD))
-            {
-                uiTask.drawCommandName(mycobot.getCommandName(b),
-                                       mycobot.getCommandCounter());
-            }
-            if (mycobot.isFrameState(STATE_HEADER_START))
-            {
-                uiTask.clearDataFrame();
-            }
-            if (mycobot.isInFrame())
-            {
-                uiTask.drawDataFrame(mycobot.getFrameState(),
-                                     mycobot.getParsePosition(),
-                                     b);
-            }
+            updateUI(b);
+        }
+        if (b == SET_BASIC_OUTPUT)
+        {
+            parseSetBasic();
         }
     }
 }

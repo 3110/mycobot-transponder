@@ -56,6 +56,8 @@ public:
     virtual void update(void);
 
 protected:
+    virtual void parseSetBasic(void);
+    virtual void updateUI(byte b);
     virtual bool readDumped(void);
 
 private:

@@ -81,6 +81,9 @@ enum CommandCode
   SET_GRIPPER_INI = 0x68,
   IS_GRIPPER_MOVING = 0x69,
   SET_LED = 0x6a,
+
+  // Basic
+  SET_BASIC_OUTPUT = 0xa0,
 };
 
 class MyCobotTransponder
