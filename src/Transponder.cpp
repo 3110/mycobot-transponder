@@ -181,7 +181,7 @@ void Transponder::updateUI(byte b)
     }
 }
 
-void Transponder::parseSetBasic(void) {
+void Transponder::parseSetBasicOutput(void) {
     uint8_t b = 0;
     uint8_t pinNo = 0;
     uint8_t pinData = 0;
@@ -240,7 +240,7 @@ void Transponder::update(void)
         }
         if (b == SET_BASIC_OUTPUT)
         {
-            parseSetBasic();
+            parseSetBasicOutput();
         }
     }
 }
