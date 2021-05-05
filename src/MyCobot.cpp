@@ -188,6 +188,8 @@ const char *const MyCobotParser::getCommandName(int cmd)
     return "Is Gripper Moving?";
   case SET_LED:
     return "Set LED";
+  case SET_BASIC_OUTPUT:
+    return "Set Basic Output";
   default:
     return "Unknown";
   };
