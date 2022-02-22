@@ -67,56 +67,52 @@ bool MyCobotParser::isFrameState(DataFrameState state) const {
 
 const char *const MyCobotParser::getCommandName(int cmd) {
     switch (cmd) {
-        case GET_ROBOT_VERSION:
-            return "Get Robot Version";
-        case GET_SYSTEM_VERSION:
-            return "Get System Version";
-        case GET_ROBOT_ID:
-            return "Get Robot ID";
-        case SET_ROBOT_ID:
-            return "Set Robot ID";
+        case VERSION:
+            return "Get Version";
         case POWER_ON:
             return "Power On";
         case POWER_OFF:
             return "Power Off";
         case IS_POWERED_ON:
             return "Is Powered On?";
-        case SET_FREE_MOVE:
-            return "Set Free Move";
+        case RELEASE_ALL_SERVOS:
+            return "Release All Servos";
         case IS_CONTROLLER_CONNECTED:
             return "Is Controller Connected?";
         case READ_NEXT_ERROR:
             return "Read Next Error";
+        case SET_FREE_MODE:
+            return "Set Free Mode";
+        case IS_FREE_MODE:
+            return "Is Free Mode?";
         case GET_ANGLES:
             return "Get Angles";
-        case WRITE_ANGLE:
-            return "Write Angle";
-        case SET_ANGLES:
-            return "Set Angles";
+        case SEND_ANGLE:
+            return "Send Angle";
+        case SEND_ANGLES:
+            return "Send Angles";
         case GET_COORDS:
             return "Get Coords";
-        case WRITE_COORD:
-            return "Write Coord";
-        case WRITE_COORDS:
-            return "Write Coords";
-        case PROGRAM_PAUSE:
-            return "Program Pause";
-        case IS_PROGRAM_PAUSED:
-            return "Is Program Paused?";
-        case PROGRAM_RESUME:
-            return "Program Resume";
-        case TASK_STOP:
-            return "Task Stop";
+        case SEND_COORD:
+            return "Send Coord";
+        case SEND_COORDS:
+            return "Send Coords";
+        case PAUSE:
+            return "Pause";
+        case IS_PAUSED:
+            return "Is Paused?";
+        case RESUME:
+            return "Resume";
+        case STOP:
+            return "Stop";
+        case IS_IN_POSITION:
+            return "Is in Position?";
         case IS_MOVING:
             return "Is Moving?";
         case JOG_ANGLE:
             return "Jog Angle";
-        case JOG_ABSOLUTE:
-            return "Jog Absolute";
         case JOG_COORD:
             return "Jog Coord";
-        case SEND_JOG_INCREMENT:
-            return "Send Jog Increment";
         case JOG_STOP:
             return "Jog Stop";
         case SET_ENCODER:
@@ -125,24 +121,20 @@ const char *const MyCobotParser::getCommandName(int cmd) {
             return "Get Encoder";
         case SET_ENCODERS:
             return "Set Encoders";
+        case GET_ENCODERS:
+            return "Get Encoders";
         case GET_SPEED:
             return "Get Speed";
         case SET_SPEED:
             return "Set Speed";
         case GET_FEED_OVERRIDE:
             return "Get Feed Override";
-        case SEND_OVERRIDE:
-            return "Send Override";
         case GET_ACCELERATION:
             return "Get Acceleration";
-        case GET_JOINT_MIN:
-            return "Get Joint Min";
+        case GET_JOINT_MIN_ANGLE:
+            return "Get Joint Min Angle";
         case GET_JOINT_MAX:
-            return "Get Joint Max";
-        case SET_JOINT_MIN:
-            return "Set Joint Min";
-        case SET_JOINT_MAX:
-            return "Set Joint Max";
+            return "Get Joint Max Angle";
         case IS_SERVO_ENABLED:
             return "Is Servo Enabled?";
         case IS_ALL_SERVO_ENABLED:
@@ -153,8 +145,6 @@ const char *const MyCobotParser::getCommandName(int cmd) {
             return "Get Servo Data";
         case SET_SERVO_CALIBRATION:
             return "Set Servo Calibration";
-        case VOID_JOINT_BRAKE:
-            return "Void Joint Brake";
         case RELEASE_SERVO:
             return "Release Servo";
         case FOCUS_SERVO:
@@ -179,10 +169,28 @@ const char *const MyCobotParser::getCommandName(int cmd) {
             return "Set Gripper Ini";
         case IS_GRIPPER_MOVING:
             return "Is Gripper Moving?";
-        case SET_LED:
-            return "Set LED";
+        case SET_COLOR:
+            return "Set Color";
         case SET_BASIC_OUTPUT:
             return "Set Basic Output";
+        case GET_BASIC_INPUT:
+            return "Get Basic Output";
+        case SET_GPIO_MODE:
+            return "Set GPIO Mode";
+        case SET_GPIO_UP:
+            return "Set GPIO Up";
+        case SET_GPIO_OUTPUT:
+            return "Set GPIO Output";
+        case GET_GPIO_IN:
+            return "Get GPIO In";
+        case SET_SSID_PWD:
+            return "Set SSID Password";
+        case GET_SSID_PWD:
+            return "Get SSID Password";
+        case SET_SERVER_PORT:
+            return "Set Server Port";
+        case GET_TOF_DISTANCE:
+            return "Get ToF Distance";
         default:
             return "Unknown";
     };
@@ -289,8 +297,8 @@ const char *const MyCobot::getCommandName(int cmd) {
 void MyCobot::setLED(byte r, byte g, byte b) {
     parser.send(FRAME_HEADER);
     parser.send(FRAME_HEADER);
-    parser.send(CMD_SET_LED_LEN);
-    parser.send(SET_LED);
+    parser.send(CMD_SET_COLOR_LEN);
+    parser.send(SET_COLOR);
     parser.send(r);
     parser.send(g);
     parser.send(b);
@@ -298,11 +306,11 @@ void MyCobot::setLED(byte r, byte g, byte b) {
     parser.flush();
 }
 
-void MyCobot::setFreeMove(void) {
+void MyCobot::releaseAllServos(void) {
     parser.send(FRAME_HEADER);
     parser.send(FRAME_HEADER);
-    parser.send(CMD_SET_FREE_MOVE_LEN);
-    parser.send(SET_FREE_MOVE);
+    parser.send(CMD_RELEASE_ALL_SERVOS_LEN);
+    parser.send(RELEASE_ALL_SERVOS);
     parser.send(FRAME_FOOTER);
     parser.flush();
     delay(100);

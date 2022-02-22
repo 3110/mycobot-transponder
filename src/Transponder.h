@@ -49,7 +49,7 @@ public:
 
     virtual bool toggleDumped(void);
     virtual void getJointAngles(void);
-    virtual void setFreeMove(void);
+    virtual void releaseAllServos(void);
     virtual void update(void);
 
 protected:

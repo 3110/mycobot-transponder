@@ -22,7 +22,7 @@ void loop(void) {
     }
 
     if (M5.BtnC.wasPressed()) {
-        transponder.setFreeMove();
+        transponder.releaseAllServos();
     }
     transponder.update();
 }

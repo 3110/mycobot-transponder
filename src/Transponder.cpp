@@ -136,8 +136,8 @@ void Transponder::getJointAngles(void) {
     }
 }
 
-void Transponder::setFreeMove(void) {
-    mycobot.setFreeMove();
+void Transponder::releaseAllServos(void) {
+    mycobot.releaseAllServos();
 }
 
 void Transponder::updateUI(byte b) {
