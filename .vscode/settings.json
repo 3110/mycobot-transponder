@@ -1,5 +1,8 @@
 {
     "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "C_Cpp.clang_format_style": "{BasedOnStyle: Google, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, AccessModifierOffset: -4}",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
     "files.associations": {
         "array": "cpp",
         "deque": "cpp",

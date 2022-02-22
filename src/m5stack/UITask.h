@@ -2,6 +2,7 @@
 #define _UI_TASK_H
 
 #include <M5Stack.h>
+
 #include "MyCobot.h"
 
 typedef uint32_t coord_t;
@@ -12,8 +13,7 @@ typedef uint8_t font_datum_t;
 
 class UITask;
 
-class UITitle
-{
+class UITitle {
 public:
     static const coord_t X_POS = 320;
     static const coord_t Y_POS = 0;
@@ -37,17 +37,16 @@ public:
     UITitle(void);
     virtual ~UITitle(void);
 
-    void draw(TFT_eSprite &sprite,
-              const char *const title, const char *const version);
+    void draw(TFT_eSprite &sprite, const char *const title,
+              const char *const version);
 };
 
-class UIStatus
-{
+class UIStatus {
 public:
     static const coord_t RADIUS = 10;
 
-    UIStatus(coord_t x, coord_t y, coord_t radius,
-             color_t onColor, color_t offColor);
+    UIStatus(coord_t x, coord_t y, coord_t radius, color_t onColor,
+             color_t offColor);
     UIStatus(coord_t x, coord_t y, color_t onColor, color_t offColor);
     virtual ~UIStatus(void);
 
@@ -63,8 +62,7 @@ private:
 };
 
 #ifdef ENABLE_ESP_NOW
-class UIEspNowStatus : public UIStatus
-{
+class UIEspNowStatus : public UIStatus {
 public:
     static const coord_t X_POS = 305;
     static const coord_t Y_POS = 14;
@@ -76,8 +74,7 @@ public:
 };
 #endif
 
-class UICommandName
-{
+class UICommandName {
 public:
     static const coord_t X_POS = 0;
     static const coord_t Y_POS = 50;
@@ -104,13 +101,12 @@ public:
     UICommandName(void);
     virtual ~UICommandName(void);
 
-    virtual void draw(TFT_eSprite &sprite,
-                      const char *const cmd, uint16_t counter);
+    virtual void draw(TFT_eSprite &sprite, const char *const cmd,
+                      uint16_t counter);
     void clear(TFT_eSprite &sprite);
 };
 
-class UIJointAngles
-{
+class UIJointAngles {
 public:
     static const coord_t X_POS = 5;
     static const coord_t Y_POS = 155;
@@ -134,8 +130,7 @@ public:
     virtual void clear(TFT_eSprite &sprite);
 };
 
-class UIDataFrame
-{
+class UIDataFrame {
 public:
     static const coord_t X_POS = 6;
     static const coord_t Y_POS = 110;
@@ -156,12 +151,12 @@ public:
     UIDataFrame(void);
     virtual ~UIDataFrame(void);
 
-    virtual void draw(TFT_eSprite &sprite, DataFrameState state, uint8_t pos, int b);
+    virtual void draw(TFT_eSprite &sprite, DataFrameState state, uint8_t pos,
+                      int b);
     virtual void clear(TFT_eSprite &sprite);
 };
 
-class UIHardButton
-{
+class UIHardButton {
 public:
     static const coord_t Y_POS = 204;
     static const length_t WIDTH = 16 * 5;
@@ -180,8 +175,7 @@ public:
     virtual void draw(TFT_eSprite &sprite);
 };
 
-class UIHardButtonA : public UIHardButton
-{
+class UIHardButtonA : public UIHardButton {
 public:
     UIHardButtonA(void);
     virtual ~UIHardButtonA(void);
@@ -196,8 +190,7 @@ private:
     bool dumped;
 };
 
-class UIHardButtonB : public UIHardButton
-{
+class UIHardButtonB : public UIHardButton {
 public:
     UIHardButtonB(void);
     virtual ~UIHardButtonB(void);
@@ -209,8 +202,7 @@ private:
     static const coord_t X_POS = 160 - WIDTH / 2;
 };
 
-class UIHardButtonC : public UIHardButton
-{
+class UIHardButtonC : public UIHardButton {
 public:
     UIHardButtonC(void);
     virtual ~UIHardButtonC(void);
@@ -222,8 +214,7 @@ private:
     static const coord_t X_POS = 255 - WIDTH / 2;
 };
 
-class UITask
-{
+class UITask {
 public:
     UITask(void);
     virtual ~UITask(void);

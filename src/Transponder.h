@@ -5,17 +5,16 @@
 #define TRANSPONDER_NAME "Transponder"
 
 #include <Preferences.h>
-#include "m5stack/UITask.h"
+
 #include "CommandQueue.h"
+#include "m5stack/UITask.h"
 #ifdef ENABLE_ESP_NOW
 #include "m5stack/EspNowReceiver.h"
 #endif
 
-class SerialQueueTransponder : public MyCobotTransponder
-{
+class SerialQueueTransponder : public MyCobotTransponder {
 public:
-    SerialQueueTransponder(HardwareSerial &sendSerial,
-                           xQueueHandle &sendHandle,
+    SerialQueueTransponder(HardwareSerial &sendSerial, xQueueHandle &sendHandle,
                            xQueueHandle &recvHandle);
     virtual ~SerialQueueTransponder(void);
 
@@ -31,8 +30,7 @@ private:
     xQueueHandle &recvHandle;
 };
 
-class Transponder
-{
+class Transponder {
 public:
     static const byte DEFAULT_LED_R = 0xff;
     static const byte DEFAULT_LED_G = 0xff;
@@ -46,8 +44,7 @@ public:
     virtual ~Transponder(void);
 
     virtual bool begin(BaseType_t core = DEFAULT_TRANSPOND_CORE,
-                       byte r = DEFAULT_LED_R,
-                       byte g = DEFAULT_LED_G,
+                       byte r = DEFAULT_LED_R, byte g = DEFAULT_LED_G,
                        byte b = DEFAULT_LED_B);
 
     virtual bool toggleDumped(void);
@@ -65,8 +62,8 @@ private:
     static const char *const NAME;
     static const char *const PREFS_NAMESPACE;
     static const char *const PREFS_IS_DUMPED;
-    static const int SERIAL_BAUD_RATE = 115200;   // PC -> Basic
-    static const int SERIAL2_BAUD_RATE = 1000000; // Basic -> ATOM
+    static const int SERIAL_BAUD_RATE = 115200;    // PC -> Basic
+    static const int SERIAL2_BAUD_RATE = 1000000;  // Basic -> ATOM
 
     Preferences prefs;
 #ifdef ENABLE_ESP_NOW
